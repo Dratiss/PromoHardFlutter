@@ -6,12 +6,12 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("PromoHard"),
-        backgroundColor: Color(0xFF7B1FA2),
+        centerTitle: true,
       ),
       body: Center(
         child: Text(
           "Carregando promoções...",
-          style: TextStyle(fontSize: 18),
+          style: TextStyle(fontSize: 20, color: Colors.white),
         ),
       ),
     );
