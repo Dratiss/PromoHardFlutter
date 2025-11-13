@@ -2,14 +2,15 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class PromoService {
-  static const String apiUrl =
-      "https://raw.githubusercontent.com/Dratiss/PromoHardAPI/main/promos.json";
+  final String apiUrl =
+      "https://raw.githubusercontent.com/Dratiss/PromoHardApi/refs/heads/main/Promotions.json";
 
-  static Future<List<dynamic>> getPromotions() async {
+  Future<List<dynamic>> fetchPromotions() async {
     final response = await http.get(Uri.parse(apiUrl));
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      final data = json.decode(response.body);
+      return data["promotions"] ?? [];
     } else {
       throw Exception("Erro ao carregar promoções");
     }
