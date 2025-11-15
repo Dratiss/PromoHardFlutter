@@ -12,7 +12,31 @@ class _HomePageState extends State<HomePage> {
   late Future<List<dynamic>> promotions;
 
   bool showExpired = true; // mostrar promoções expiradas
+  String selectedGroup = "Tudo"; // grupo selecionado
+  String selectedCategory = ""; // subcategoria selecionada
   String sortMode = "none"; // modo de ordenação
+
+  // Mapa profissional de categorias por grupo
+  final Map<String, List<String>> subcategories = {
+    "Hardware": ["CPU", "GPU", "Placa-mãe", "RAM"],
+    "Armazenamento": ["SSD", "HD"],
+    "Energia": ["Fonte", "Gabinete", "Resfriamento"],
+    "Periféricos": ["Mouse", "Teclado", "Headset", "Webcam", "Microfone", "Mousepad"],
+    "Consoles": ["PlayStation", "Xbox", "Nintendo", "Acessórios"],
+    "Notebooks": ["Notebooks"],
+    "Diversos": ["Diversos"]
+  };
+
+  final List<String> groups = [
+    "Tudo",
+    "Hardware",
+    "Armazenamento",
+    "Energia",
+    "Periféricos",
+    "Consoles",
+    "Notebooks",
+    "Diversos"
+  ];
 
   @override
   void initState() {
@@ -20,32 +44,30 @@ class _HomePageState extends State<HomePage> {
     promotions = promoService.fetchPromotions();
   }
 
-  // ==================================================
-  // FUNÇÃO DE ORDENAR
-  // ==================================================
+  // =============================================
+  // ORDENAR LISTA
+  // =============================================
   List<dynamic> applySorting(List<dynamic> items) {
     List<dynamic> sorted = List.from(items);
 
     if (sortMode == "discount") {
       sorted.sort((a, b) {
-        double pa = double.tryParse(a["promo_price"].replaceAll(RegExp(r'[^0-9,]'), '').replaceAll(",", ".")) ?? 0;
-        double na = double.tryParse(a["normal_price"].replaceAll(RegExp(r'[^0-9,]'), '').replaceAll(",", ".")) ?? 0;
+        double pa = _priceToDouble(a["promo_price"]);
+        double na = _priceToDouble(a["normal_price"]);
 
-        double pb = double.tryParse(b["promo_price"].replaceAll(RegExp(r'[^0-9,]'), '').replaceAll(",", ".")) ?? 0;
-        double nb = double.tryParse(b["normal_price"].replaceAll(RegExp(r'[^0-9,]'), '').replaceAll(",", ".")) ?? 0;
+        double pb = _priceToDouble(b["promo_price"]);
+        double nb = _priceToDouble(b["normal_price"]);
 
         double discountA = na - pa;
         double discountB = nb - pb;
-        return discountB.compareTo(discountA); // MAIOR DESCONTO PRIMEIRO
+
+        return discountB.compareTo(discountA);
       });
     }
 
     if (sortMode == "low_price") {
-      sorted.sort((a, b) {
-        double pa = double.tryParse(a["promo_price"].replaceAll(RegExp(r'[^0-9,]'), '').replaceAll(",", ".")) ?? 0;
-        double pb = double.tryParse(b["promo_price"].replaceAll(RegExp(r'[^0-9,]'), '').replaceAll(",", ".")) ?? 0;
-        return pa.compareTo(pb); // MENOR PREÇO PRIMEIRO
-      });
+      sorted.sort((a, b) =>
+          _priceToDouble(a["promo_price"]).compareTo(_priceToDouble(b["promo_price"])));
     }
 
     if (sortMode == "time") {
@@ -53,11 +75,15 @@ class _HomePageState extends State<HomePage> {
         final da = a["expires_at_parsed"];
         final db = b["expires_at_parsed"];
         if (da == null || db == null) return 0;
-        return da.compareTo(db); // MENOR TEMPO RESTANTE
+        return da.compareTo(db);
       });
     }
 
     return sorted;
+  }
+
+  double _priceToDouble(String price) {
+    return double.tryParse(price.replaceAll(RegExp(r'[^0-9,]'), '').replaceAll(",", ".")) ?? 0;
   }
 
   @override
@@ -65,9 +91,6 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Color(0xFF121212),
 
-      // ==================================================
-      // APP BAR COM FILTRO E ORDENAÇÃO
-      // ==================================================
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text("Promoções em tempo real"),
@@ -75,7 +98,7 @@ class _HomePageState extends State<HomePage> {
         elevation: 0,
 
         actions: [
-          // Switch para mostrar expiradas
+          // Mostrar ou ocultar expiradas
           Row(
             children: [
               Text("Expiradas",
@@ -101,83 +124,159 @@ class _HomePageState extends State<HomePage> {
               });
             },
             itemBuilder: (context) => [
-              PopupMenuItem(
-                value: "none",
-                child: Text("Padrão"),
-              ),
-              PopupMenuItem(
-                value: "discount",
-                child: Text("Maior desconto"),
-              ),
-              PopupMenuItem(
-                value: "low_price",
-                child: Text("Menor preço"),
-              ),
-              PopupMenuItem(
-                value: "time",
-                child: Text("Tempo restante"),
-              ),
+              PopupMenuItem(value: "none", child: Text("Padrão")),
+              PopupMenuItem(value: "discount", child: Text("Maior desconto")),
+              PopupMenuItem(value: "low_price", child: Text("Menor preço")),
+              PopupMenuItem(value: "time", child: Text("Tempo restante")),
             ],
           ),
         ],
       ),
 
-      // ==================================================
-      // LISTA DE PROMOÇÕES
-      // ==================================================
       body: FutureBuilder<List<dynamic>>(
         future: promotions,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(color: Colors.redAccent),
-            );
+            return Center(child: CircularProgressIndicator(color: Colors.redAccent));
           }
 
           if (snapshot.hasError) {
             return Center(
               child: Text("Erro ao carregar promoções",
-                  style: TextStyle(color: Colors.white, fontSize: 18)),
+                  style: TextStyle(color: Colors.white)),
             );
           }
 
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(
-              child: Text("Nenhuma promoção encontrada",
-                  style: TextStyle(color: Colors.white, fontSize: 18)),
-            );
-          }
+          List items = snapshot.data ?? [];
 
-          // Lista original
-          List items = snapshot.data!;
-
-          // 1. Filtrar expiradas
-          final filteredItems = showExpired
+          // =============================================
+          // FILTRAR EXPIRADAS
+          // =============================================
+          final now = DateTime.now();
+          List filtered = showExpired
               ? items
-              : items.where((promo) {
-                  final expiry = promo["expires_at_parsed"];
-                  return expiry != null && expiry.isAfter(DateTime.now());
-                }).toList();
+              : items.where((promo) =>
+                  promo["expires_at_parsed"] != null &&
+                  promo["expires_at_parsed"].isAfter(now)).toList();
 
-          // 2. Aplicar ordenação
-          final finalList = applySorting(filteredItems);
+          // =============================================
+          // FILTRAR GRUPO
+          // =============================================
+          if (selectedGroup != "Tudo") {
+            filtered = filtered.where((item) =>
+                item["group"] == selectedGroup).toList();
+          }
 
-          return ListView.builder(
-            itemCount: finalList.length,
-            itemBuilder: (context, index) {
-              final promo = finalList[index];
+          // =============================================
+          // FILTRAR SUBCATEGORIA
+          // =============================================
+          if (selectedCategory.isNotEmpty) {
+            filtered = filtered.where((item) =>
+                item["category"] == selectedCategory).toList();
+          }
 
-              return PromoCard(
-                title: promo["title"],
-                normalPrice: promo["normal_price"],
-                promoPrice: promo["promo_price"],
-                imageUrl: promo["image"],
-                store: promo["store"],
-                expiresAt: promo["expires_at"],
-                stock: promo["stock"],
-                onTap: () {},
-              );
-            },
+          // =============================================
+          // ORDENAR
+          // =============================================
+          filtered = applySorting(filtered);
+
+          return Column(
+            children: [
+              // ==================================================
+              // BARRA DE GRUPOS
+              // ==================================================
+              Container(
+                height: 48,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  children: groups.map((g) {
+                    bool active = selectedGroup == g;
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChoiceChip(
+                        label: Text(g),
+                        selected: active,
+                        onSelected: (_) {
+                          setState(() {
+                            selectedGroup = g;
+                            selectedCategory = ""; // limpa subcat
+                          });
+                        },
+                        selectedColor: Colors.redAccent,
+                        backgroundColor: Colors.grey[800],
+                        labelStyle: TextStyle(
+                          color: active ? Colors.white : Colors.white70,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+
+              // ==================================================
+              // BARRA DE SUBCATEGORIAS (MOSTRA SÓ QUANDO PRECISO)
+              // ==================================================
+              if (selectedGroup != "Tudo")
+                Container(
+                  height: 48,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    children: subcategories[selectedGroup]!.map((c) {
+                      bool active = selectedCategory == c;
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: ChoiceChip(
+                          label: Text(c),
+                          selected: active,
+                          onSelected: (_) {
+                            setState(() {
+                              selectedCategory = c;
+                            });
+                          },
+                          selectedColor: Colors.blueAccent,
+                          backgroundColor: Colors.grey[800],
+                          labelStyle: TextStyle(
+                            color: active ? Colors.white : Colors.white70,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+
+              // ==================================================
+              // LISTA DE PROMOÇÕES
+              // ==================================================
+              Expanded(
+                child: filtered.isEmpty
+                    ? Center(
+                        child: Text(
+                          "Nenhuma promoção encontrada",
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: filtered.length,
+                        itemBuilder: (context, index) {
+                          final promo = filtered[index];
+                          return PromoCard(
+                            title: promo["title"],
+                            normalPrice: promo["normal_price"],
+                            promoPrice: promo["promo_price"],
+                            imageUrl: promo["image"],
+                            store: promo["store"],
+                            expiresAt: promo["expires_at"],
+                            stock: promo["stock"],
+                            onTap: () {},
+                          );
+                        },
+                      ),
+              ),
+            ],
           );
         },
       ),
