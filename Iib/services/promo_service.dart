@@ -13,13 +13,28 @@ class PromoService {
 
       List promotions = data["promotions"] ?? [];
 
-      // Converte expires_at para DateTime e organiza por expiração
       for (var promo in promotions) {
+        // ===========================================
+        // PROCESSA EXPIRES_AT → DateTime
+        // ===========================================
         if (promo["expires_at"] != null) {
-          promo["expires_at_parsed"] =
-              DateTime.tryParse(promo["expires_at"]);
+          promo["expires_at_parsed"] = DateTime.tryParse(promo["expires_at"]);
         } else {
           promo["expires_at_parsed"] = null;
+        }
+
+        // ===========================================
+        // GARANTIR QUE CATEGORIA EXISTE
+        // ===========================================
+        if (promo["category"] == null) {
+          promo["category"] = "Diversos";
+        }
+
+        // ===========================================
+        // GARANTIR QUE GRUPO EXISTE
+        // ===========================================
+        if (promo["group"] == null) {
+          promo["group"] = "Diversos";
         }
       }
 
