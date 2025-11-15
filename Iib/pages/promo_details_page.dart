@@ -1,55 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 
 class PromoDetailsPage extends StatelessWidget {
   final Map<String, dynamic> promo;
 
-  const PromoDetailsPage({required this.promo});
+  PromoDetailsPage({required this.promo});
 
-  double _priceToDouble(String price) {
-    return double.tryParse(price.replaceAll(RegExp(r'[^0-9,]'), '').replaceAll(",", ".")) ?? 0;
+  bool isExpired() {
+    if (promo["expires_at"] == null) return false;
+    final date = DateTime.tryParse(promo["expires_at"]);
+    if (date == null) return false;
+    return date.isBefore(DateTime.now());
   }
 
-  String getExpirationText(String? expiresAt) {
-    if (expiresAt == null) return "Sem validade";
+  String getExpirationText() {
+    final expiresAt = promo["expires_at"];
+    if (expiresAt == null || expiresAt.isEmpty) return "Sem data";
 
-    DateTime? date = DateTime.tryParse(expiresAt);
-    if (date == null) return "Sem validade";
+    final expiryDate = DateTime.tryParse(expiresAt);
+    if (expiryDate == null) return "Sem data";
 
     final now = DateTime.now();
-    if (date.isBefore(now)) return "Oferta expirada";
 
-    final diff = date.difference(now);
+    if (expiryDate.isBefore(now)) return "Expirado";
 
-    if (diff.inDays > 0) return "Expira em ${diff.inDays} dias";
-    if (diff.inHours > 0) return "Expira em ${diff.inHours} horas";
-    if (diff.inMinutes > 0) return "Expira em ${diff.inMinutes} minutos";
+    final diff = expiryDate.difference(now);
+    if (diff.inHours < 24) return "Expira em ${diff.inHours}h";
 
-    return "Expira em instantes";
+    return "Expira em ${diff.inDays} dias";
   }
 
   @override
   Widget build(BuildContext context) {
-    final String title = promo["title"];
-    final String normalPrice = promo["normal_price"];
-    final String promoPrice = promo["promo_price"];
-    final String store = promo["store"];
-    final String? expiresAt = promo["expires_at"];
-    final int? stock = promo["stock"];
-    final String url = promo["link"] ?? "https://www.google.com"; // Placeholder caso não tenha link
-
-    // calcula porcentagem de desconto
-    final double np = _priceToDouble(normalPrice);
-    final double pp = _priceToDouble(promoPrice);
-    final int discount = (100 - ((pp / np) * 100)).round();
+    final expired = isExpired();
 
     return Scaffold(
       backgroundColor: Color(0xFF121212),
       appBar: AppBar(
+        title: Text("Detalhes da Promoção"),
         backgroundColor: Colors.black,
-        title: Text("Detalhes da promoção"),
-        centerTitle: true,
-        elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.share),
+            onPressed: () {
+              Share.share(
+                "${promo['title']} está por ${promo['promo_price']}!\nLoja: ${promo['store']}\n${promo['link']}",
+              );
+            },
+          )
+        ],
       ),
 
       body: SingleChildScrollView(
@@ -57,143 +56,143 @@ class PromoDetailsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // IMAGEM PRINCIPAL
+            // IMAGEM GRANDE
             ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               child: Image.network(
                 promo["image"],
-                height: 240,
+                height: 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => Container(
-                  height: 240,
-                  color: Colors.grey.shade800,
-                  child: Icon(Icons.broken_image, color: Colors.white30, size: 50),
+                  height: 200,
+                  color: Colors.grey[800],
+                  child: Icon(Icons.image_not_supported, color: Colors.white38, size: 40),
                 ),
               ),
             ),
 
-            SizedBox(height: 20),
+            SizedBox(height: 15),
 
             // TÍTULO
             Text(
-              title,
+              promo["title"],
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
             ),
 
-            SizedBox(height: 10),
+            SizedBox(height: 8),
+
+            // CATEGORIA
+            Text(
+              "Categoria: ${promo['category']}",
+              style: TextStyle(
+                color: Colors.white54,
+                fontSize: 14,
+              ),
+            ),
+
+            SizedBox(height: 15),
 
             // PREÇOS
             Row(
               children: [
                 Text(
-                  normalPrice,
+                  promo["normal_price"],
                   style: TextStyle(
                     color: Colors.redAccent,
+                    fontSize: 16,
                     decoration: TextDecoration.lineThrough,
-                    fontSize: 14,
                   ),
                 ),
-                SizedBox(width: 10),
+                SizedBox(width: 12),
                 Text(
-                  promoPrice,
+                  "Por ${promo['promo_price']}",
                   style: TextStyle(
                     color: Colors.greenAccent,
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(width: 10),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.redAccent,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    "-$discount%",
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ),
               ],
-            ),
-
-            SizedBox(height: 20),
-
-            // LOJA
-            Text(
-              "Loja: $store",
-              style: TextStyle(color: Colors.blueAccent, fontSize: 16),
             ),
 
             SizedBox(height: 10),
 
+            // LOJA
+            Text(
+              promo["store"],
+              style: TextStyle(
+                color: Colors.blueAccent,
+                fontSize: 16,
+              ),
+            ),
+
+            SizedBox(height: 15),
+
             // EXPIRAÇÃO
             Text(
-              getExpirationText(expiresAt),
+              getExpirationText(),
               style: TextStyle(
-                color: expiresAt != null &&
-                        DateTime.tryParse(expiresAt)!.isBefore(DateTime.now())
-                    ? Colors.redAccent
-                    : Colors.orangeAccent,
+                color: expired ? Colors.redAccent : Colors.orangeAccent,
                 fontSize: 15,
               ),
             ),
 
-            if (stock != null && stock! <= 10)
+            if (promo["stock"] != null && promo["stock"] <= 10 && !expired)
               Padding(
-                padding: const EdgeInsets.only(top: 6),
+                padding: EdgeInsets.only(top: 6),
                 child: Text(
-                  "🔥 Últimas $stock unidades!",
-                  style: TextStyle(color: Colors.redAccent, fontSize: 14),
+                  "🔥 Últimas ${promo['stock']} unidades!",
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
 
             SizedBox(height: 25),
 
-            // DESCRIÇÃO
-            Text(
-              "Descrição",
-              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text(
-              promo["description"] ??
-                  "Promoção encontrada automaticamente pelo sistema PromoHard.",
-              style: TextStyle(color: Colors.white70, fontSize: 14),
-            ),
-
-            SizedBox(height: 30),
-
-            // BOTÃO "IR PARA A OFERTA"
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            // BOTÕES
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // abrir link no futuro
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                      padding: EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text(
+                      "Ir para oferta",
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
                   ),
                 ),
-                onPressed: () async {
-                  final Uri finalUrl = Uri.parse(url);
-                  if (await canLaunchUrl(finalUrl)) {
-                    await launchUrl(finalUrl, mode: LaunchMode.externalApplication);
-                  }
-                },
-                child: Text(
-                  "Ir para a oferta",
-                  style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
+                SizedBox(width: 12),
 
-            SizedBox(height: 30),
+                // ❤️ FAVORITO FUTURO
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[850],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.favorite_border, color: Colors.white),
+                    onPressed: () {},
+                  ),
+                )
+              ],
+            )
           ],
         ),
       ),
