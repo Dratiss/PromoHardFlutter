@@ -29,6 +29,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFF0E0E0E),
+
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -40,30 +41,29 @@ class HomePage extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        centerTitle: false,
       ),
 
       body: ListView.builder(
-        padding: EdgeInsets.all(10),
+        padding: EdgeInsets.all(12),
         itemCount: promotions.length,
         itemBuilder: (context, index) {
           final p = promotions[index];
 
           return Container(
-            margin: EdgeInsets.only(bottom: 15),
-            padding: EdgeInsets.all(12),
+            margin: EdgeInsets.only(bottom: 16),
             decoration: BoxDecoration(
               color: Color(0xFF1A1A1A),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(18),
             ),
+            padding: EdgeInsets.all(12),
             child: Row(
               children: [
-                // Imagem do produto
+                // IMAGEM DO PRODUTO
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                   child: Container(
-                    width: 80,
-                    height: 80,
+                    width: 85,
+                    height: 85,
                     color: Colors.redAccent,
                     child: Image.network(
                       p["image"],
@@ -72,9 +72,9 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(width: 15),
+                SizedBox(width: 16),
 
-                // Infos do produto
+                // TEXTOS DO CARD
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,7 +82,7 @@ class HomePage extends StatelessWidget {
                       Text(
                         p["title"],
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 17,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -103,7 +103,7 @@ class HomePage extends StatelessWidget {
                         "Por: ${p["promo"]}",
                         style: TextStyle(
                           color: Colors.greenAccent,
-                          fontSize: 17,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -124,46 +124,6 @@ class HomePage extends StatelessWidget {
             ),
           );
         },
-      ),
-
-      // Barra inferior
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Color(0xFF141414),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(18),
-            topRight: Radius.circular(18),
-          ),
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          selectedItemColor: Colors.redAccent,
-          unselectedItemColor: Colors.white70,
-          type: BottomNavigationBarType.fixed,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: "Início",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.grid_view),
-              label: "Categorias",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.favorite),
-              label: "Favoritos",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.build),
-              label: "Montar PC",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: "Perfil",
-            ),
-          ],
-        ),
       ),
     );
   }
