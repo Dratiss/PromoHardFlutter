@@ -43,12 +43,41 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFF121212),
+
+      // ============================================================
+      // APPBAR COM MENU DE FILTRO (OPÇÃO A)
+      // ============================================================
       appBar: AppBar(
         title: Text("Promoções em tempo real"),
         backgroundColor: Colors.black,
         centerTitle: true,
+        actions: [
+          PopupMenuButton<String>(
+            icon: Icon(Icons.filter_list, color: Colors.white),
+            onSelected: (value) {
+              setState(() => filterStatus = value);
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: "Ativas",
+                child: Text("Somente Ativas"),
+              ),
+              PopupMenuItem(
+                value: "Expiradas",
+                child: Text("Somente Expiradas"),
+              ),
+              PopupMenuItem(
+                value: "Todas",
+                child: Text("Todas Promoções"),
+              ),
+            ],
+          ),
+        ],
       ),
 
+      // ============================================================
+      // CONTEÚDO PRINCIPAL
+      // ============================================================
       body: FutureBuilder<List<dynamic>>(
         future: promotions,
         builder: (context, snapshot) {
@@ -60,18 +89,19 @@ class _HomePageState extends State<HomePage> {
 
           if (snapshot.hasError) {
             return Center(
-              child: Text("Erro ao carregar promoções", style: TextStyle(color: Colors.white)),
+              child: Text("Erro ao carregar promoções",
+                  style: TextStyle(color: Colors.white)),
             );
           }
 
           var items = snapshot.data ?? [];
 
-          // FILTRO POR CATEGORIA
+          // --- FILTRO POR CATEGORIA ---
           if (selectedCategory != "Todas") {
             items = items.where((p) => p["category"] == selectedCategory).toList();
           }
 
-          // FILTRO POR STATUS
+          // --- FILTRO POR STATUS ---
           if (filterStatus == "Ativas") {
             items = items.where((p) => !isExpired(p["expires_at"])).toList();
           } else if (filterStatus == "Expiradas") {
@@ -80,27 +110,17 @@ class _HomePageState extends State<HomePage> {
 
           return Column(
             children: [
-              // SELETOR DE STATUS
-              Padding(
-                padding: EdgeInsets.all(10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _statusButton("Ativas"),
-                    _statusButton("Expiradas"),
-                    _statusButton("Todas"),
-                  ],
-                ),
-              ),
-
-              // SELETOR DE CATEGORIA
+              // ============================================================
+              // SCROLL HORIZONTAL DE CATEGORIAS
+              // ============================================================
               Container(
+                height: 50,
                 padding: EdgeInsets.symmetric(horizontal: 12),
-                height: 45,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: categories.map((c) {
                     final selected = c == selectedCategory;
+
                     return GestureDetector(
                       onTap: () => setState(() => selectedCategory = c),
                       child: Container(
@@ -122,6 +142,9 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
+              // ============================================================
+              // LISTA DE PROMOÇÕES
+              // ============================================================
               Expanded(
                 child: ListView.builder(
                   itemCount: items.length,
@@ -152,21 +175,6 @@ class _HomePageState extends State<HomePage> {
             ],
           );
         },
-      ),
-    );
-  }
-
-  Widget _statusButton(String text) {
-    final selected = filterStatus == text;
-    return GestureDetector(
-      onTap: () => setState(() => filterStatus = text),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: selected ? Colors.redAccent : Colors.white70,
-          fontSize: selected ? 18 : 15,
-          fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-        ),
       ),
     );
   }
