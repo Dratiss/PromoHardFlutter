@@ -1,29 +1,20 @@
 import 'package:flutter/material.dart';
+import '../services/promo_service.dart';
 
-class HomePage extends StatelessWidget {
-  final List<Map<String, dynamic>> promotions = [
-    {
-      "title": "RTX 4060 8GB",
-      "normal": "R\$ 1.899",
-      "promo": "R\$ 1.499",
-      "store": "Kabum",
-      "image": "https://via.placeholder.com/150"
-    },
-    {
-      "title": "Ryzen 5 5600G",
-      "normal": "R\$ 899",
-      "promo": "R\$ 649",
-      "store": "Amazon",
-      "image": "https://via.placeholder.com/150"
-    },
-    {
-      "title": "SSD 1TB NVMe",
-      "normal": "R\$ 399",
-      "promo": "R\$ 279",
-      "store": "Terabyte",
-      "image": "https://via.placeholder.com/150"
-    },
-  ];
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final PromoService promoService = PromoService();
+  late Future<List<dynamic>> promotions;
+
+  @override
+  void initState() {
+    super.initState();
+    promotions = promoService.fetchPromotions();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,85 +34,119 @@ class HomePage extends StatelessWidget {
         ),
       ),
 
-      body: ListView.builder(
-        padding: EdgeInsets.all(12),
-        itemCount: promotions.length,
-        itemBuilder: (context, index) {
-          final p = promotions[index];
+      body: FutureBuilder<List<dynamic>>(
+        future: promotions,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(color: Colors.redAccent),
+            );
+          }
 
-          return Container(
-            margin: EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: Color(0xFF1A1A1A),
-              borderRadius: BorderRadius.circular(18),
-            ),
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                "Erro ao carregar promoções",
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            );
+          }
+
+          final items = snapshot.data ?? [];
+
+          if (items.isEmpty) {
+            return Center(
+              child: Text(
+                "Nenhuma promoção disponível",
+                style: TextStyle(color: Colors.white),
+              ),
+            );
+          }
+
+          return ListView.builder(
             padding: EdgeInsets.all(12),
-            child: Row(
-              children: [
-                // IMAGEM DO PRODUTO
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    width: 85,
-                    height: 85,
-                    color: Colors.redAccent,
-                    child: Image.network(
-                      p["image"],
-                      fit: BoxFit.cover,
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final p = items[index];
+
+              return Container(
+                margin: EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Color(0xFF1A1A1A),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                padding: EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    // FOTO DO PRODUTO
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Container(
+                        width: 85,
+                        height: 85,
+                        color: Colors.redAccent,
+                        child: Image.network(
+                          p["image"],
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
-                  ),
+
+                    SizedBox(width: 16),
+
+                    // TEXTOS DO CARD
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            p["title"],
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+
+                          SizedBox(height: 4),
+
+                          // PREÇO NORMAL (RISCADO)
+                          Text(
+                            "De: ${p["normal_price"]}",
+                            style: TextStyle(
+                              color: Colors.red.shade300,
+                              fontSize: 13,
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                          ),
+
+                          // PREÇO PROMO
+                          Text(
+                            "Por: ${p["promo_price"]}",
+                            style: TextStyle(
+                              color: Colors.greenAccent,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          SizedBox(height: 6),
+
+                          // LOJA
+                          Text(
+                            p["store"],
+                            style: TextStyle(
+                              color: Colors.blueAccent,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-
-                SizedBox(width: 16),
-
-                // TEXTOS DO CARD
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        p["title"],
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-
-                      SizedBox(height: 4),
-
-                      Text(
-                        "De: ${p["normal"]}",
-                        style: TextStyle(
-                          color: Colors.red.shade300,
-                          fontSize: 13,
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
-
-                      Text(
-                        "Por: ${p["promo"]}",
-                        style: TextStyle(
-                          color: Colors.greenAccent,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-
-                      SizedBox(height: 6),
-
-                      Text(
-                        p["store"],
-                        style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
           );
         },
       ),
