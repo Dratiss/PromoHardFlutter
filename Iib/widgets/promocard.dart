@@ -1,46 +1,46 @@
 import 'package:flutter/material.dart';
 
 class PromoCard extends StatelessWidget {
-  final String imageUrl;
   final String title;
   final String normalPrice;
   final String promoPrice;
+  final String imageUrl;
   final String store;
-  final String? expiresAt;
+  final String expiresAt;
   final int? stock;
+  final String category;
   final VoidCallback onTap;
 
   PromoCard({
-    required this.imageUrl,
     required this.title,
     required this.normalPrice,
     required this.promoPrice,
+    required this.imageUrl,
     required this.store,
     required this.expiresAt,
     required this.stock,
+    required this.category,
     required this.onTap,
   });
 
-  // ============================================================
-  // CALCULA TEMPO RESTANTE / EXPIRADO
-  // ============================================================
   String getExpirationText() {
-    if (expiresAt == null) return "Sem data";
+    if (expiresAt.isEmpty) return "SEM DATA";
 
-    DateTime? date = DateTime.tryParse(expiresAt!);
-    if (date == null) return "Sem data";
+    final expiryDate = DateTime.tryParse(expiresAt);
+    if (expiryDate == null) return "SEM DATA";
 
     final now = DateTime.now();
 
-    if (date.isBefore(now)) return "EXPIRADO";
+    if (expiryDate.isBefore(now)) {
+      return "EXPIRADO";
+    }
 
-    final diff = date.difference(now);
+    final diff = expiryDate.difference(now);
+    if (diff.inHours < 24) {
+      return "Expira em ${diff.inHours}h";
+    }
 
-    if (diff.inDays > 0) return "Expira em ${diff.inDays} dias";
-    if (diff.inHours > 0) return "Expira em ${diff.inHours} horas";
-    if (diff.inMinutes > 0) return "Expira em ${diff.inMinutes} min";
-
-    return "Expira em instantes";
+    return "Expira em ${diff.inDays} dias";
   }
 
   @override
@@ -48,13 +48,13 @@ class PromoCard extends StatelessWidget {
     final expiration = getExpirationText();
     final isExpired = expiration == "EXPIRADO";
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Opacity(
-        opacity: isExpired ? 0.45 : 1.0, // <<< deixa o card apagado
+    return Opacity(
+      opacity: isExpired ? 0.40 : 1.0,
+      child: GestureDetector(
+        onTap: onTap,
         child: Container(
+          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
           padding: EdgeInsets.all(12),
-          margin: EdgeInsets.symmetric(vertical: 6, horizontal: 10),
           decoration: BoxDecoration(
             color: Color(0xFF1A1A1A),
             borderRadius: BorderRadius.circular(12),
@@ -67,14 +67,13 @@ class PromoCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 child: Image.network(
                   imageUrl,
-                  width: 70,
-                  height: 70,
+                  width: 75,
+                  height: 75,
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Container(
-                    width: 70,
-                    height: 70,
+                    width: 75,
+                    height: 75,
                     color: Colors.grey.shade800,
-                    alignment: Alignment.center,
                     child: Icon(Icons.image_not_supported, color: Colors.white30),
                   ),
                 ),
@@ -82,12 +81,12 @@ class PromoCard extends StatelessWidget {
 
               SizedBox(width: 12),
 
-              // INFORMAÇÕES
+              // TEXTOS
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // TÍTULO
+                    // TITLE
                     Text(
                       title,
                       maxLines: 2,
@@ -101,7 +100,7 @@ class PromoCard extends StatelessWidget {
 
                     SizedBox(height: 6),
 
-                    // PREÇO NORMAL
+                    // PREÇO ANTIGO
                     Text(
                       normalPrice,
                       style: TextStyle(
@@ -111,7 +110,7 @@ class PromoCard extends StatelessWidget {
                       ),
                     ),
 
-                    // PREÇO PROMOÇÃO
+                    // PREÇO PROMO
                     Text(
                       "Por: $promoPrice",
                       style: TextStyle(
@@ -153,6 +152,13 @@ class PromoCard extends StatelessWidget {
                           fontSize: 12,
                         ),
                       ),
+
+                    // CATEGORIA
+                    SizedBox(height: 4),
+                    Text(
+                      "Categoria: $category",
+                      style: TextStyle(color: Colors.white54, fontSize: 11),
+                    ),
                   ],
                 ),
               )
