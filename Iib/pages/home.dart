@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/promo_service.dart';
+import '../widgets/promocard.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -19,19 +20,12 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF0E0E0E),
-
+      backgroundColor: Color(0xFF121212),
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        title: Text("Promoções em tempo real"),
+        backgroundColor: Colors.black,
+        centerTitle: true,
         elevation: 0,
-        title: Text(
-          "Promoções em tempo real",
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
       ),
 
       body: FutureBuilder<List<dynamic>>(
@@ -52,99 +46,33 @@ class _HomePageState extends State<HomePage> {
             );
           }
 
-          final items = snapshot.data ?? [];
-
-          if (items.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
               child: Text(
-                "Nenhuma promoção disponível",
-                style: TextStyle(color: Colors.white),
+                "Nenhuma promoção encontrada",
+                style: TextStyle(color: Colors.white, fontSize: 18),
               ),
             );
           }
 
+          final items = snapshot.data!;
+
           return ListView.builder(
-            padding: EdgeInsets.all(12),
             itemCount: items.length,
             itemBuilder: (context, index) {
-              final p = items[index];
+              final promo = items[index];
 
-              return Container(
-                margin: EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Color(0xFF1A1A1A),
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                padding: EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    // FOTO DO PRODUTO
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(14),
-                      child: Container(
-                        width: 85,
-                        height: 85,
-                        color: Colors.redAccent,
-                        child: Image.network(
-                          p["image"],
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(width: 16),
-
-                    // TEXTOS DO CARD
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            p["title"],
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-
-                          SizedBox(height: 4),
-
-                          // PREÇO NORMAL (RISCADO)
-                          Text(
-                            "De: ${p["normal_price"]}",
-                            style: TextStyle(
-                              color: Colors.red.shade300,
-                              fontSize: 13,
-                              decoration: TextDecoration.lineThrough,
-                            ),
-                          ),
-
-                          // PREÇO PROMO
-                          Text(
-                            "Por: ${p["promo_price"]}",
-                            style: TextStyle(
-                              color: Colors.greenAccent,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-
-                          SizedBox(height: 6),
-
-                          // LOJA
-                          Text(
-                            p["store"],
-                            style: TextStyle(
-                              color: Colors.blueAccent,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+              return PromoCard(
+                title: promo["title"],
+                normalPrice: promo["normal_price"],
+                promoPrice: promo["promo_price"],
+                imageUrl: promo["image"],
+                store: promo["store"],
+                expiresAt: promo["expires_at"],
+                stock: promo["stock"],
+                onTap: () {
+                  // Aqui futuramente abrimos a página detalhada da promoção
+                },
               );
             },
           );
