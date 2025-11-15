@@ -15,6 +15,10 @@ class _HomePageState extends State<HomePage> {
   String selectedCategory = "Todas";
   String filterStatus = "Ativas"; // Ativas / Expiradas / Todas
 
+  bool isSearching = false;
+  String searchQuery = "";
+  final TextEditingController searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -44,40 +48,66 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Color(0xFF121212),
 
-      // ============================================================
-      // APPBAR COM MENU DE FILTRO (OPÇÃO A)
-      // ============================================================
       appBar: AppBar(
-        title: Text("Promoções em tempo real"),
         backgroundColor: Colors.black,
         centerTitle: true,
+
+        // ===================================================
+        // APPBAR DINÂMICO — TÍTULO OU CAMPO DE BUSCA
+        // ===================================================
+        title: isSearching
+            ? TextField(
+                controller: searchController,
+                autofocus: true,
+                style: TextStyle(color: Colors.white),
+                cursorColor: Colors.redAccent,
+                decoration: InputDecoration(
+                  hintText: "Buscar promoção...",
+                  hintStyle: TextStyle(color: Colors.white54),
+                  border: InputBorder.none,
+                ),
+                onChanged: (value) {
+                  setState(() => searchQuery = value.toLowerCase());
+                },
+              )
+            : Text("Promoções em tempo real"),
+
         actions: [
+          // ÍCONE DE BUSCA
+          IconButton(
+            icon: Icon(
+              isSearching ? Icons.close : Icons.search,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              setState(() {
+                if (isSearching) {
+                  searchController.clear();
+                  searchQuery = "";
+                }
+                isSearching = !isSearching;
+              });
+            },
+          ),
+
+          // FILTRO NO MENU
           PopupMenuButton<String>(
             icon: Icon(Icons.filter_list, color: Colors.white),
             onSelected: (value) {
               setState(() => filterStatus = value);
             },
             itemBuilder: (context) => [
-              PopupMenuItem(
-                value: "Ativas",
-                child: Text("Somente Ativas"),
-              ),
-              PopupMenuItem(
-                value: "Expiradas",
-                child: Text("Somente Expiradas"),
-              ),
-              PopupMenuItem(
-                value: "Todas",
-                child: Text("Todas Promoções"),
-              ),
+              PopupMenuItem(value: "Ativas", child: Text("Somente Ativas")),
+              PopupMenuItem(value: "Expiradas", child: Text("Somente Expiradas")),
+              PopupMenuItem(value: "Todas", child: Text("Todas")),
             ],
           ),
         ],
       ),
 
-      // ============================================================
+      // ===================================================
       // CONTEÚDO PRINCIPAL
-      // ============================================================
+      // ===================================================
       body: FutureBuilder<List<dynamic>>(
         future: promotions,
         builder: (context, snapshot) {
@@ -96,23 +126,31 @@ class _HomePageState extends State<HomePage> {
 
           var items = snapshot.data ?? [];
 
-          // --- FILTRO POR CATEGORIA ---
+          // FILTRO POR CATEGORIA
           if (selectedCategory != "Todas") {
             items = items.where((p) => p["category"] == selectedCategory).toList();
           }
 
-          // --- FILTRO POR STATUS ---
+          // FILTRO POR STATUS
           if (filterStatus == "Ativas") {
             items = items.where((p) => !isExpired(p["expires_at"])).toList();
           } else if (filterStatus == "Expiradas") {
             items = items.where((p) => isExpired(p["expires_at"])).toList();
           }
 
+          // FILTRO POR BUSCA
+          if (searchQuery.isNotEmpty) {
+            items = items.where((p) {
+              return p["title"].toLowerCase().contains(searchQuery) ||
+                  p["category"].toLowerCase().contains(searchQuery);
+            }).toList();
+          }
+
           return Column(
             children: [
-              // ============================================================
-              // SCROLL HORIZONTAL DE CATEGORIAS
-              // ============================================================
+              // ===================================================
+              // SCROLL DE CATEGORIAS
+              // ===================================================
               Container(
                 height: 50,
                 padding: EdgeInsets.symmetric(horizontal: 12),
@@ -142,9 +180,9 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              // ============================================================
-              // LISTA DE PROMOÇÕES
-              // ============================================================
+              // ===================================================
+              // LISTA DE PROMOÇÕES CARD
+              // ===================================================
               Expanded(
                 child: ListView.builder(
                   itemCount: items.length,
