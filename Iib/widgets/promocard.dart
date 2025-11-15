@@ -21,24 +21,26 @@ class PromoCard extends StatelessWidget {
     required this.onTap,
   });
 
-  // Calcula texto da expiração
+  // ============================================================
+  // CALCULA TEMPO RESTANTE / EXPIRADO
+  // ============================================================
   String getExpirationText() {
-    if (expiresAt == null || expiresAt!.isEmpty) {
-      return "Oferta por tempo limitado";
-    }
+    if (expiresAt == null) return "Sem data";
 
-    final endTime = DateTime.tryParse(expiresAt!);
-    if (endTime == null) return "Oferta por tempo limitado";
+    DateTime? date = DateTime.tryParse(expiresAt!);
+    if (date == null) return "Sem data";
 
     final now = DateTime.now();
 
-    if (now.isAfter(endTime)) return "EXPIRADO";
+    if (date.isBefore(now)) return "EXPIRADO";
 
-    final diff = endTime.difference(now);
+    final diff = date.difference(now);
 
-    if (diff.inMinutes < 60) return "Acaba em ${diff.inMinutes} min";
-    if (diff.inHours < 24) return "Acaba em ${diff.inHours}h";
-    return "Acaba em ${diff.inDays} dias";
+    if (diff.inDays > 0) return "Expira em ${diff.inDays} dias";
+    if (diff.inHours > 0) return "Expira em ${diff.inHours} horas";
+    if (diff.inMinutes > 0) return "Expira em ${diff.inMinutes} min";
+
+    return "Expira em instantes";
   }
 
   @override
@@ -52,6 +54,7 @@ class PromoCard extends StatelessWidget {
         opacity: isExpired ? 0.45 : 1.0, // <<< deixa o card apagado
         child: Container(
           padding: EdgeInsets.all(12),
+          margin: EdgeInsets.symmetric(vertical: 6, horizontal: 10),
           decoration: BoxDecoration(
             color: Color(0xFF1A1A1A),
             borderRadius: BorderRadius.circular(12),
@@ -59,6 +62,7 @@ class PromoCard extends StatelessWidget {
 
           child: Row(
             children: [
+              // IMAGEM
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Image.network(
@@ -70,6 +74,7 @@ class PromoCard extends StatelessWidget {
                     width: 70,
                     height: 70,
                     color: Colors.grey.shade800,
+                    alignment: Alignment.center,
                     child: Icon(Icons.image_not_supported, color: Colors.white30),
                   ),
                 ),
@@ -77,10 +82,12 @@ class PromoCard extends StatelessWidget {
 
               SizedBox(width: 12),
 
+              // INFORMAÇÕES
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // TÍTULO
                     Text(
                       title,
                       maxLines: 2,
@@ -94,6 +101,7 @@ class PromoCard extends StatelessWidget {
 
                     SizedBox(height: 6),
 
+                    // PREÇO NORMAL
                     Text(
                       normalPrice,
                       style: TextStyle(
@@ -103,6 +111,7 @@ class PromoCard extends StatelessWidget {
                       ),
                     ),
 
+                    // PREÇO PROMOÇÃO
                     Text(
                       "Por: $promoPrice",
                       style: TextStyle(
@@ -114,6 +123,7 @@ class PromoCard extends StatelessWidget {
 
                     SizedBox(height: 4),
 
+                    // LOJA
                     Text(
                       store,
                       style: TextStyle(
@@ -124,6 +134,7 @@ class PromoCard extends StatelessWidget {
 
                     SizedBox(height: 4),
 
+                    // EXPIRAÇÃO
                     Text(
                       expiration,
                       style: TextStyle(
@@ -133,6 +144,7 @@ class PromoCard extends StatelessWidget {
                       ),
                     ),
 
+                    // ESTOQUE BAIXO
                     if (stock != null && stock! <= 10 && !isExpired)
                       Text(
                         "🔥 Últimas $stock unidades!",
