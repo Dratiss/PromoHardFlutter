@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 class PromoCard extends StatelessWidget {
   final String title;
@@ -8,8 +9,7 @@ class PromoCard extends StatelessWidget {
   final String store;
   final String expiresAt;
   final int? stock;
-  final String category;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   PromoCard({
     required this.title,
@@ -18,29 +18,25 @@ class PromoCard extends StatelessWidget {
     required this.imageUrl,
     required this.store,
     required this.expiresAt,
-    required this.stock,
-    required this.category,
-    required this.onTap,
+    this.stock,
+    this.onTap,
   });
 
+  // --- Cálculo de expiração ---
   String getExpirationText() {
-    if (expiresAt.isEmpty) return "SEM DATA";
+    try {
+      final exp = DateTime.parse(expiresAt);
+      final now = DateTime.now();
 
-    final expiryDate = DateTime.tryParse(expiresAt);
-    if (expiryDate == null) return "SEM DATA";
+      if (exp.isBefore(now)) return "EXPIRADO";
 
-    final now = DateTime.now();
+      final diff = exp.difference(now).inHours;
+      if (diff <= 24) return "Oferta por tempo limitado";
 
-    if (expiryDate.isBefore(now)) {
-      return "EXPIRADO";
+      return "Expira em ${exp.day}/${exp.month}";
+    } catch (e) {
+      return "Expiração desconhecida";
     }
-
-    final diff = expiryDate.difference(now);
-    if (diff.inHours < 24) {
-      return "Expira em ${diff.inHours}h";
-    }
-
-    return "Expira em ${diff.inDays} dias";
   }
 
   @override
@@ -49,44 +45,51 @@ class PromoCard extends StatelessWidget {
     final isExpired = expiration == "EXPIRADO";
 
     return Opacity(
-      opacity: isExpired ? 0.40 : 1.0,
-      child: GestureDetector(
-        onTap: onTap,
+      opacity: isExpired ? 0.45 : 1.0, // Deixa expirados apagados
+      child: InkWell(
+        onTap: isExpired ? null : onTap, // evita clicar se expirado
+        borderRadius: BorderRadius.circular(12),
+
         child: Container(
-          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Color(0xFF1A1A1A),
+            color: const Color(0xFF1A1A1A),
             borderRadius: BorderRadius.circular(12),
           ),
 
           child: Row(
             children: [
-              // IMAGEM
+              // ----------- IMAGEM DO PRODUTO -----------
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Image.network(
                   imageUrl,
-                  width: 75,
-                  height: 75,
+                  width: 70,
+                  height: 70,
                   fit: BoxFit.cover,
+
+                  // Fallback para imagem quebrada (DartPad)
                   errorBuilder: (_, __, ___) => Container(
-                    width: 75,
-                    height: 75,
-                    color: Colors.grey.shade800,
-                    child: Icon(Icons.image_not_supported, color: Colors.white30),
+                    width: 70,
+                    height: 70,
+                    color: Colors.grey.shade900,
+                    child: Icon(
+                      Icons.image_not_supported,
+                      color: Colors.white24,
+                    ),
                   ),
                 ),
               ),
 
               SizedBox(width: 12),
 
-              // TEXTOS
+              // ----------- TEXTOS -----------
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // TITLE
+                    // Nome
                     Text(
                       title,
                       maxLines: 2,
@@ -100,7 +103,7 @@ class PromoCard extends StatelessWidget {
 
                     SizedBox(height: 6),
 
-                    // PREÇO ANTIGO
+                    // Preço normal riscado
                     Text(
                       normalPrice,
                       style: TextStyle(
@@ -110,7 +113,7 @@ class PromoCard extends StatelessWidget {
                       ),
                     ),
 
-                    // PREÇO PROMO
+                    // Preço promocional
                     Text(
                       "Por: $promoPrice",
                       style: TextStyle(
@@ -122,7 +125,7 @@ class PromoCard extends StatelessWidget {
 
                     SizedBox(height: 4),
 
-                    // LOJA
+                    // Loja
                     Text(
                       store,
                       style: TextStyle(
@@ -133,32 +136,26 @@ class PromoCard extends StatelessWidget {
 
                     SizedBox(height: 4),
 
-                    // EXPIRAÇÃO
+                    // Expiração
                     Text(
                       expiration,
                       style: TextStyle(
-                        color: isExpired ? Colors.redAccent : Colors.orangeAccent,
+                        color:
+                            isExpired ? Colors.redAccent : Colors.orangeAccent,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
 
-                    // ESTOQUE BAIXO
+                    // Estoque baixo
                     if (stock != null && stock! <= 10 && !isExpired)
                       Text(
                         "🔥 Últimas $stock unidades!",
                         style: TextStyle(
-                          color: Colors.red,
+                          color: Colors.redAccent,
                           fontSize: 12,
                         ),
                       ),
-
-                    // CATEGORIA
-                    SizedBox(height: 4),
-                    Text(
-                      "Categoria: $category",
-                      style: TextStyle(color: Colors.white54, fontSize: 11),
-                    ),
                   ],
                 ),
               )
