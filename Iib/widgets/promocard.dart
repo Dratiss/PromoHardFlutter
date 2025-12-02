@@ -1,41 +1,40 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 
 class PromoCard extends StatelessWidget {
+  final String imageUrl;
   final String title;
   final String normalPrice;
   final String promoPrice;
-  final String imageUrl;
   final String store;
+  final String category;
   final String expiresAt;
   final int? stock;
-  final VoidCallback? onTap;
+  final VoidCallback onTap;
 
-  PromoCard({
+  const PromoCard({
+    required this.imageUrl,
     required this.title,
     required this.normalPrice,
     required this.promoPrice,
-    required this.imageUrl,
     required this.store,
+    required this.category,
     required this.expiresAt,
-    this.stock,
-    this.onTap,
+    required this.stock,
+    required this.onTap,
   });
 
-  // --- Cálculo de expiração ---
+  // Transforma a data em texto
   String getExpirationText() {
     try {
-      final exp = DateTime.parse(expiresAt);
+      final date = DateTime.parse(expiresAt);
       final now = DateTime.now();
+      final difference = date.difference(now);
 
-      if (exp.isBefore(now)) return "EXPIRADO";
-
-      final diff = exp.difference(now).inHours;
-      if (diff <= 24) return "Oferta por tempo limitado";
-
-      return "Expira em ${exp.day}/${exp.month}";
+      if (difference.isNegative) return "EXPIRADO";
+      if (difference.inHours < 24) return "Expira em ${difference.inHours}h";
+      return "Expira em ${difference.inDays} dias";
     } catch (e) {
-      return "Expiração desconhecida";
+      return "Validade desconhecida";
     }
   }
 
@@ -45,69 +44,81 @@ class PromoCard extends StatelessWidget {
     final isExpired = expiration == "EXPIRADO";
 
     return Opacity(
-      opacity: isExpired ? 0.45 : 1.0, // Deixa expirados apagados
-      child: InkWell(
-        onTap: isExpired ? null : onTap, // evita clicar se expirado
-        borderRadius: BorderRadius.circular(12),
-
+      opacity: isExpired ? 0.45 : 1.0,
+      child: GestureDetector(
+        onTap: isExpired ? () {} : onTap,
         child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          padding: EdgeInsets.all(12),
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: const Color(0xFF1A1A1A),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.04),
+              width: 1,
+            ),
           ),
 
           child: Row(
             children: [
-              // ----------- IMAGEM DO PRODUTO -----------
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.network(
-                  imageUrl,
-                  width: 70,
-                  height: 70,
-                  fit: BoxFit.cover,
-
-                  // Fallback para imagem quebrada (DartPad)
-                  errorBuilder: (_, __, ___) => Container(
-                    width: 70,
-                    height: 70,
-                    color: Colors.grey.shade900,
-                    child: Icon(
-                      Icons.image_not_supported,
-                      color: Colors.white24,
+              // Imagem com glow roxo suave
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.purpleAccent.withOpacity(0.25),
+                      blurRadius: 16,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    imageUrl,
+                    width: 76,
+                    height: 76,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      width: 76,
+                      height: 76,
+                      color: Colors.grey.shade800,
+                      child: const Icon(
+                        Icons.image_not_supported,
+                        color: Colors.white30,
+                      ),
                     ),
                   ),
                 ),
               ),
 
-              SizedBox(width: 12),
+              const SizedBox(width: 14),
 
-              // ----------- TEXTOS -----------
+              // Texto da promoção
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Nome
+                    // Título
                     Text(
                       title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
 
-                    SizedBox(height: 6),
+                    const SizedBox(height: 6),
 
-                    // Preço normal riscado
+                    // Preço original riscado
                     Text(
                       normalPrice,
                       style: TextStyle(
-                        color: Colors.redAccent,
+                        color: Colors.redAccent.withOpacity(0.85),
                         decoration: TextDecoration.lineThrough,
                         fontSize: 12,
                       ),
@@ -116,25 +127,25 @@ class PromoCard extends StatelessWidget {
                     // Preço promocional
                     Text(
                       "Por: $promoPrice",
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.greenAccent,
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
 
-                    SizedBox(height: 4),
+                    const SizedBox(height: 6),
 
                     // Loja
                     Text(
                       store,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.blueAccent,
                         fontSize: 13,
                       ),
                     ),
 
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
 
                     // Expiração
                     Text(
@@ -151,14 +162,14 @@ class PromoCard extends StatelessWidget {
                     if (stock != null && stock! <= 10 && !isExpired)
                       Text(
                         "🔥 Últimas $stock unidades!",
-                        style: TextStyle(
-                          color: Colors.redAccent,
+                        style: const TextStyle(
+                          color: Colors.red,
                           fontSize: 12,
                         ),
                       ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
