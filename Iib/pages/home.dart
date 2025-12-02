@@ -10,7 +10,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final PromoService promoService = PromoService();
   late Future<List<dynamic>> promotions;
-  bool showOnlyActive = true; // <<< Filtro padrão
+  String searchQuery = "";
 
   @override
   void initState() {
@@ -18,73 +18,104 @@ class _HomePageState extends State<HomePage> {
     promotions = promoService.fetchPromotions();
   }
 
+  // Função de filtro completo (título + loja + categoria)
+  List<dynamic> filterPromotions(List<dynamic> items) {
+    if (searchQuery.isEmpty) return items;
+
+    final query = searchQuery.toLowerCase();
+
+    return items.where((promo) {
+      final title = promo["title"].toString().toLowerCase();
+      final store = promo["store"].toString().toLowerCase();
+      final category = promo["category"].toString().toLowerCase();
+
+      return title.contains(query) ||
+          store.contains(query) ||
+          category.contains(query);
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: Color(0xFF121212),
 
       appBar: AppBar(
-        title: const Text("Promoções"),
-        backgroundColor: Colors.black,
-        centerTitle: true,
+        backgroundColor: Color(0xFF0E0E0E),
         elevation: 0,
+        centerTitle: true,
+
+        // PROMOHARD centralizado com micro glow roxo
+        title: Text(
+          "PROMOHARD",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            shadows: [
+              Shadow(
+                color: Colors.purpleAccent.withOpacity(0.25),
+                blurRadius: 6,
+              ),
+            ],
+          ),
+        ),
       ),
 
       body: Column(
         children: [
-          const SizedBox(height: 8),
-
-          // 🔥 SEGMENTED CONTROL (ATIVAS | TODAS)
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildSegmentButton("Ativas", true),
-                const SizedBox(width: 8),
-                _buildSegmentButton("Todas", false),
-              ],
+          // Barra de busca
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+            child: TextField(
+              onChanged: (value) {
+                setState(() => searchQuery = value);
+              },
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: "Buscar produto, loja ou categoria...",
+                hintStyle: TextStyle(color: Colors.white54),
+                prefixIcon: Icon(Icons.search, color: Colors.white70),
+                filled: true,
+                fillColor: Color(0xFF1A1A1A),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
             ),
           ),
 
-          const SizedBox(height: 4),
-
-          // 🔥 LISTA DE PROMOÇÕES
           Expanded(
             child: FutureBuilder<List<dynamic>>(
               future: promotions,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
+                  return Center(
                     child: CircularProgressIndicator(color: Colors.redAccent),
                   );
                 }
 
                 if (snapshot.hasError) {
-                  return const Center(
+                  return Center(
                     child: Text(
                       "Erro ao carregar promoções",
-                      style: TextStyle(color: Colors.white, fontSize: 18),
+                      style: TextStyle(color: Colors.white),
                     ),
                   );
                 }
 
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
                       "Nenhuma promoção encontrada",
-                      style: TextStyle(color: Colors.white, fontSize: 18),
+                      style: TextStyle(color: Colors.white),
                     ),
                   );
                 }
 
-                final allItems = snapshot.data!;
-                final filteredItems = showOnlyActive
-                    ? allItems.where((promo) {
-                        final exp = promo["expires_at_parsed"];
-                        return exp == null || exp.isAfter(DateTime.now());
-                      }).toList()
-                    : allItems;
+                final filteredItems =
+                    filterPromotions(snapshot.data!);
 
                 return ListView.builder(
                   itemCount: filteredItems.length,
@@ -95,13 +126,12 @@ class _HomePageState extends State<HomePage> {
                       title: promo["title"],
                       normalPrice: promo["normal_price"],
                       promoPrice: promo["promo_price"],
-                      imageUrl: promo["image"],
+                      imageUrl: promo["image"] ?? "",
                       store: promo["store"],
+                      category: promo["category"],
                       expiresAt: promo["expires_at"],
                       stock: promo["stock"],
-                      onTap: () {
-                        // Futuro: abrir detalhes
-                      },
+                      onTap: () {},
                     );
                   },
                 );
@@ -109,38 +139,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  // 🔥 BOTÃO DE SEGMENTO (ATIVAS | TODAS)
-  Widget _buildSegmentButton(String text, bool value) {
-    final bool isSelected = (showOnlyActive == value);
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          showOnlyActive = value;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.redAccent : Colors.grey.shade900,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isSelected ? Colors.redAccent : Colors.grey.shade700,
-            width: 1.4,
-          ),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.grey.shade400,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
       ),
     );
   }
