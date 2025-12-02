@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/promo_service.dart';
 import '../widgets/promocard.dart';
-import 'promo_details_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -11,13 +10,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final PromoService promoService = PromoService();
   late Future<List<dynamic>> promotions;
-
-  String selectedCategory = "Todas";
-  String filterStatus = "Ativas"; // Ativas / Expiradas / Todas
-
-  bool isSearching = false;
-  String searchQuery = "";
-  final TextEditingController searchController = TextEditingController();
+  bool showOnlyActive = true; // <<< Filtro padrão
 
   @override
   void initState() {
@@ -25,169 +18,78 @@ class _HomePageState extends State<HomePage> {
     promotions = promoService.fetchPromotions();
   }
 
-  List<String> categories = [
-    "Todas",
-    "Processadores",
-    "Placas de Vídeo",
-    "Armazenamento",
-    "Periféricos",
-    "Consoles",
-    "Cadeiras",
-    "Outros",
-  ];
-
-  bool isExpired(String? expiresAt) {
-    if (expiresAt == null) return false;
-    final date = DateTime.tryParse(expiresAt);
-    if (date == null) return false;
-    return date.isBefore(DateTime.now());
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF121212),
+      backgroundColor: const Color(0xFF121212),
 
       appBar: AppBar(
+        title: const Text("Promoções"),
         backgroundColor: Colors.black,
         centerTitle: true,
-
-        // ===================================================
-        // APPBAR DINÂMICO — TÍTULO OU CAMPO DE BUSCA
-        // ===================================================
-        title: isSearching
-            ? TextField(
-                controller: searchController,
-                autofocus: true,
-                style: TextStyle(color: Colors.white),
-                cursorColor: Colors.redAccent,
-                decoration: InputDecoration(
-                  hintText: "Buscar promoção...",
-                  hintStyle: TextStyle(color: Colors.white54),
-                  border: InputBorder.none,
-                ),
-                onChanged: (value) {
-                  setState(() => searchQuery = value.toLowerCase());
-                },
-              )
-            : Text("Promoções em tempo real"),
-
-        actions: [
-          // ÍCONE DE BUSCA
-          IconButton(
-            icon: Icon(
-              isSearching ? Icons.close : Icons.search,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              setState(() {
-                if (isSearching) {
-                  searchController.clear();
-                  searchQuery = "";
-                }
-                isSearching = !isSearching;
-              });
-            },
-          ),
-
-          // FILTRO NO MENU
-          PopupMenuButton<String>(
-            icon: Icon(Icons.filter_list, color: Colors.white),
-            onSelected: (value) {
-              setState(() => filterStatus = value);
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(value: "Ativas", child: Text("Somente Ativas")),
-              PopupMenuItem(value: "Expiradas", child: Text("Somente Expiradas")),
-              PopupMenuItem(value: "Todas", child: Text("Todas")),
-            ],
-          ),
-        ],
+        elevation: 0,
       ),
 
-      // ===================================================
-      // CONTEÚDO PRINCIPAL
-      // ===================================================
-      body: FutureBuilder<List<dynamic>>(
-        future: promotions,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(color: Colors.redAccent),
-            );
-          }
+      body: Column(
+        children: [
+          const SizedBox(height: 8),
 
-          if (snapshot.hasError) {
-            return Center(
-              child: Text("Erro ao carregar promoções",
-                  style: TextStyle(color: Colors.white)),
-            );
-          }
+          // 🔥 SEGMENTED CONTROL (ATIVAS | TODAS)
+          Container(
+            padding: const EdgeInsets.all(8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildSegmentButton("Ativas", true),
+                const SizedBox(width: 8),
+                _buildSegmentButton("Todas", false),
+              ],
+            ),
+          ),
 
-          var items = snapshot.data ?? [];
+          const SizedBox(height: 4),
 
-          // FILTRO POR CATEGORIA
-          if (selectedCategory != "Todas") {
-            items = items.where((p) => p["category"] == selectedCategory).toList();
-          }
+          // 🔥 LISTA DE PROMOÇÕES
+          Expanded(
+            child: FutureBuilder<List<dynamic>>(
+              future: promotions,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Colors.redAccent),
+                  );
+                }
 
-          // FILTRO POR STATUS
-          if (filterStatus == "Ativas") {
-            items = items.where((p) => !isExpired(p["expires_at"])).toList();
-          } else if (filterStatus == "Expiradas") {
-            items = items.where((p) => isExpired(p["expires_at"])).toList();
-          }
+                if (snapshot.hasError) {
+                  return const Center(
+                    child: Text(
+                      "Erro ao carregar promoções",
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  );
+                }
 
-          // FILTRO POR BUSCA
-          if (searchQuery.isNotEmpty) {
-            items = items.where((p) {
-              return p["title"].toLowerCase().contains(searchQuery) ||
-                  p["category"].toLowerCase().contains(searchQuery);
-            }).toList();
-          }
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      "Nenhuma promoção encontrada",
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  );
+                }
 
-          return Column(
-            children: [
-              // ===================================================
-              // SCROLL DE CATEGORIAS
-              // ===================================================
-              Container(
-                height: 50,
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: categories.map((c) {
-                    final selected = c == selectedCategory;
+                final allItems = snapshot.data!;
+                final filteredItems = showOnlyActive
+                    ? allItems.where((promo) {
+                        final exp = promo["expires_at_parsed"];
+                        return exp == null || exp.isAfter(DateTime.now());
+                      }).toList()
+                    : allItems;
 
-                    return GestureDetector(
-                      onTap: () => setState(() => selectedCategory = c),
-                      child: Container(
-                        margin: EdgeInsets.only(right: 10),
-                        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: selected ? Colors.redAccent : Colors.grey[800],
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Center(
-                          child: Text(
-                            c,
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-
-              // ===================================================
-              // LISTA DE PROMOÇÕES CARD
-              // ===================================================
-              Expanded(
-                child: ListView.builder(
-                  itemCount: items.length,
+                return ListView.builder(
+                  itemCount: filteredItems.length,
                   itemBuilder: (context, index) {
-                    final promo = items[index];
+                    final promo = filteredItems[index];
 
                     return PromoCard(
                       title: promo["title"],
@@ -197,22 +99,48 @@ class _HomePageState extends State<HomePage> {
                       store: promo["store"],
                       expiresAt: promo["expires_at"],
                       stock: promo["stock"],
-                      category: promo["category"],
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PromoDetailsPage(promo: promo),
-                          ),
-                        );
+                        // Futuro: abrir detalhes
                       },
                     );
                   },
-                ),
-              ),
-            ],
-          );
-        },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 🔥 BOTÃO DE SEGMENTO (ATIVAS | TODAS)
+  Widget _buildSegmentButton(String text, bool value) {
+    final bool isSelected = (showOnlyActive == value);
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          showOnlyActive = value;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.redAccent : Colors.grey.shade900,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isSelected ? Colors.redAccent : Colors.grey.shade700,
+            width: 1.4,
+          ),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.grey.shade400,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }
