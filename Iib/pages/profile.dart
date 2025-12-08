@@ -6,38 +6,51 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF0E0E0E),
+      backgroundColor: const Color(0xFF0E0E0E),
+
       appBar: AppBar(
-        backgroundColor: Color(0xFF1A1A1A),
-        title: Text("Perfil"),
+        backgroundColor: Colors.black,
+        elevation: 0,
         centerTitle: true,
+        title: const Text(
+          "Perfil",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: Colors.white,
+          ),
+        ),
       ),
+
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // FOTO / ÍCONE DO USUÁRIO
+            const SizedBox(height: 25),
+
+            // FOTO DO USUÁRIO
             CircleAvatar(
               radius: 45,
-              backgroundColor: Colors.grey[700],
-              child: Icon(Icons.person, size: 50, color: Colors.white),
+              backgroundColor: Colors.grey[800],
+              child: const Icon(Icons.person, size: 50, color: Colors.white),
             ),
 
-            SizedBox(height: 12),
+            const SizedBox(height: 14),
 
-            // NOME DO USUÁRIO (placeholder por enquanto)
-            Text(
+            // NOME DO USUÁRIO (placeholder)
+            const Text(
               "Usuário PromoHard",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
               ),
             ),
 
-            SizedBox(height: 20),
-            Divider(color: Colors.white24),
+            const SizedBox(height: 25),
+            Divider(color: Colors.white10),
+
+            const SizedBox(height: 10),
 
             // LISTA DE OPÇÕES
             buildMenuItem(
@@ -64,7 +77,7 @@ class ProfilePage extends StatelessWidget {
             ),
             buildMenuItem(
               context,
-              icon: Icons.email_outlined,
+              icon: Icons.support_agent,
               label: "Contato / Suporte",
             ),
           ],
@@ -73,22 +86,23 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  // ITEM DE MENU REUTILIZÁVEL
+  // ITEM REUTILIZÁVEL DO MENU
   Widget buildMenuItem(BuildContext context,
       {required IconData icon, required String label, Widget? page}) {
     return ListTile(
-      leading: Icon(icon, color: Colors.white),
+      leading: Icon(icon, color: Colors.redAccent, size: 26),
       title: Text(
         label,
-        style: TextStyle(color: Colors.white, fontSize: 16),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
       ),
-      trailing: Icon(Icons.chevron_right, color: Colors.white54),
+      trailing: const Icon(Icons.chevron_right, color: Colors.white54),
       onTap: () {
         if (page != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => page),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (_) => page));
         }
       },
     );
