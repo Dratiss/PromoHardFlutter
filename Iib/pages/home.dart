@@ -18,7 +18,7 @@ class _HomePageState extends State<HomePage> {
     promotions = promoService.fetchPromotions();
   }
 
-  // Função de filtro completo (título + loja + categoria)
+  // Filtro completo (nome + loja + categoria)
   List<dynamic> filterPromotions(List<dynamic> items) {
     if (searchQuery.isEmpty) return items;
 
@@ -38,14 +38,12 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF121212),
+      backgroundColor: const Color(0xFF121212),
 
       appBar: AppBar(
-        backgroundColor: Color(0xFF0E0E0E),
+        backgroundColor: const Color(0xFF0E0E0E),
         elevation: 0,
         centerTitle: true,
-
-        // PROMOHARD centralizado com micro glow roxo
         title: Text(
           "PROMOHARD",
           style: TextStyle(
@@ -64,20 +62,22 @@ class _HomePageState extends State<HomePage> {
 
       body: Column(
         children: [
-          // Barra de busca
+          // ----------------------------
+          // BARRA DE BUSCA
+          // ----------------------------
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
             child: TextField(
               onChanged: (value) {
                 setState(() => searchQuery = value);
               },
-              style: TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 hintText: "Buscar produto, loja ou categoria...",
-                hintStyle: TextStyle(color: Colors.white54),
-                prefixIcon: Icon(Icons.search, color: Colors.white70),
+                hintStyle: const TextStyle(color: Colors.white54),
+                prefixIcon: const Icon(Icons.search, color: Colors.white70),
                 filled: true,
-                fillColor: Color(0xFF1A1A1A),
+                fillColor: const Color(0xFF1A1A1A),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -86,18 +86,21 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
+          // ----------------------------
+          // LISTA DE PROMOÇÕES
+          // ----------------------------
           Expanded(
             child: FutureBuilder<List<dynamic>>(
               future: promotions,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
+                  return const Center(
                     child: CircularProgressIndicator(color: Colors.redAccent),
                   );
                 }
 
                 if (snapshot.hasError) {
-                  return Center(
+                  return const Center(
                     child: Text(
                       "Erro ao carregar promoções",
                       style: TextStyle(color: Colors.white),
@@ -106,7 +109,7 @@ class _HomePageState extends State<HomePage> {
                 }
 
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(
+                  return const Center(
                     child: Text(
                       "Nenhuma promoção encontrada",
                       style: TextStyle(color: Colors.white),
@@ -114,8 +117,7 @@ class _HomePageState extends State<HomePage> {
                   );
                 }
 
-                final filteredItems =
-                    filterPromotions(snapshot.data!);
+                final filteredItems = filterPromotions(snapshot.data!);
 
                 return ListView.builder(
                   itemCount: filteredItems.length,
@@ -131,7 +133,9 @@ class _HomePageState extends State<HomePage> {
                       category: promo["category"],
                       expiresAt: promo["expires_at"],
                       stock: promo["stock"],
-                      onTap: () {},
+                      onTap: () {
+                        // futuramente abre detalhes
+                      },
                     );
                   },
                 );
