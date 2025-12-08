@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/favorites_service.dart';
 
 class PromoCard extends StatelessWidget {
   final String imageUrl;
@@ -6,8 +7,7 @@ class PromoCard extends StatelessWidget {
   final String normalPrice;
   final String promoPrice;
   final String store;
-  final String category;
-  final String expiresAt;
+  final String? expiresAt;
   final int? stock;
   final VoidCallback onTap;
 
@@ -17,159 +17,162 @@ class PromoCard extends StatelessWidget {
     required this.normalPrice,
     required this.promoPrice,
     required this.store,
-    required this.category,
     required this.expiresAt,
     required this.stock,
     required this.onTap,
   });
 
-  // Transforma a data em texto
   String getExpirationText() {
-    try {
-      final date = DateTime.parse(expiresAt);
-      final now = DateTime.now();
-      final difference = date.difference(now);
+    if (expiresAt == null) return "Sem prazo definido";
 
-      if (difference.isNegative) return "EXPIRADO";
-      if (difference.inHours < 24) return "Expira em ${difference.inHours}h";
-      return "Expira em ${difference.inDays} dias";
-    } catch (e) {
-      return "Validade desconhecida";
-    }
+    final parsed = DateTime.tryParse(expiresAt!);
+    if (parsed == null) return "Sem prazo definido";
+
+    final now = DateTime.now();
+    final diff = parsed.difference(now).inHours;
+
+    if (diff <= 0) return "EXPIRADO";
+    if (diff < 24) return "Termina em $diff horas";
+    return "Termina em ${parsed.day}/${parsed.month}";
   }
 
   @override
   Widget build(BuildContext context) {
+    final isFavorite = FavoritesService.isFavorite(title);
     final expiration = getExpirationText();
     final isExpired = expiration == "EXPIRADO";
 
     return Opacity(
       opacity: isExpired ? 0.45 : 1.0,
-      child: GestureDetector(
-        onTap: isExpired ? () {} : onTap,
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1A1A1A),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.04),
-              width: 1,
-            ),
-          ),
-
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+        padding: EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Color(0xFF1A1A1A),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Imagem com glow roxo suave
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.purpleAccent.withOpacity(0.25),
-                      blurRadius: 16,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    imageUrl,
-                    width: 76,
-                    height: 76,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      width: 76,
-                      height: 76,
-                      color: Colors.grey.shade800,
-                      child: const Icon(
-                        Icons.image_not_supported,
-                        color: Colors.white30,
-                      ),
-                    ),
-                  ),
+              // IMAGEM
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  imageUrl,
+                  width: 70,
+                  height: 70,
+                  fit: BoxFit.cover,
                 ),
               ),
 
-              const SizedBox(width: 14),
+              SizedBox(width: 12),
 
-              // Texto da promoção
+              // INFORMAÇÕES
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Título
-                    Text(
-                      title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    // TÍTULO + BOTÃO FAVORITAR
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+
+                        // BOTÃO DE FAVORITAR
+                        GestureDetector(
+                          onTap: () {
+                            if (isFavorite) {
+                              FavoritesService.removeFavorite({
+                                "title": title,
+                                "normal_price": normalPrice,
+                                "promo_price": promoPrice,
+                                "store": store,
+                                "image": imageUrl,
+                                "expires_at": expiresAt,
+                                "stock": stock,
+                              });
+                            } else {
+                              FavoritesService.addFavorite({
+                                "title": title,
+                                "normal_price": normalPrice,
+                                "promo_price": promoPrice,
+                                "store": store,
+                                "image": imageUrl,
+                                "expires_at": expiresAt,
+                                "stock": stock,
+                              });
+                            }
+                          },
+                          child: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: isFavorite ? Colors.redAccent : Colors.white54,
+                          ),
+                        ),
+                      ],
                     ),
 
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
 
-                    // Preço original riscado
                     Text(
                       normalPrice,
                       style: TextStyle(
-                        color: Colors.redAccent.withOpacity(0.85),
-                        decoration: TextDecoration.lineThrough,
+                        color: Colors.redAccent,
                         fontSize: 12,
+                        decoration: TextDecoration.lineThrough,
                       ),
                     ),
 
-                    // Preço promocional
                     Text(
                       "Por: $promoPrice",
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.greenAccent,
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
 
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
 
-                    // Loja
                     Text(
                       store,
-                      style: const TextStyle(
-                        color: Colors.blueAccent,
-                        fontSize: 13,
-                      ),
+                      style: TextStyle(color: Colors.blueAccent, fontSize: 13),
                     ),
 
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
 
-                    // Expiração
                     Text(
                       expiration,
                       style: TextStyle(
-                        color:
-                            isExpired ? Colors.redAccent : Colors.orangeAccent,
+                        color: isExpired ? Colors.redAccent : Colors.orangeAccent,
                         fontSize: 12,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
 
-                    // Estoque baixo
                     if (stock != null && stock! <= 10 && !isExpired)
                       Text(
                         "🔥 Últimas $stock unidades!",
-                        style: const TextStyle(
-                          color: Colors.red,
+                        style: TextStyle(
+                          color: Colors.redAccent,
                           fontSize: 12,
                         ),
                       ),
                   ],
                 ),
-              ),
+              )
             ],
           ),
         ),
