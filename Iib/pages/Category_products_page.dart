@@ -23,10 +23,8 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
 
   List<dynamic> filterByCategory(List<dynamic> items) {
     return items.where((promo) {
-      return promo["category"]
-          .toString()
-          .toLowerCase()
-          .contains(widget.categoryName.toLowerCase());
+      return promo["category"].toString().toLowerCase() ==
+          widget.categoryName.toLowerCase();
     }).toList();
   }
 
@@ -34,7 +32,6 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0E0E0E),
-
       appBar: AppBar(
         title: Text(
           widget.categoryName,
@@ -43,7 +40,6 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
         backgroundColor: Colors.black,
         centerTitle: true,
       ),
-
       body: FutureBuilder<List<dynamic>>(
         future: promotions,
         builder: (context, snapshot) {
@@ -81,7 +77,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                 title: promo["title"],
                 normalPrice: promo["normal_price"],
                 promoPrice: promo["promo_price"],
-                imageUrl: promo["image"],
+                imageUrl: promo["image"] ?? "",
                 store: promo["store"],
                 category: promo["category"],
                 expiresAt: promo["expires_at"],
