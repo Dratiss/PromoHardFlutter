@@ -18,7 +18,6 @@ class _HomePageState extends State<HomePage> {
     promotions = promoService.fetchPromotions();
   }
 
-  // Filtro completo (nome + loja + categoria)
   List<dynamic> filterPromotions(List<dynamic> items) {
     if (searchQuery.isEmpty) return items;
 
@@ -48,12 +47,13 @@ class _HomePageState extends State<HomePage> {
           "PROMOHARD",
           style: TextStyle(
             color: Colors.white,
-            fontSize: 22,
+            fontSize: 23,
             fontWeight: FontWeight.bold,
+            letterSpacing: 1,
             shadows: [
               Shadow(
-                color: Colors.purpleAccent.withOpacity(0.25),
-                blurRadius: 6,
+                color: Colors.purpleAccent.withOpacity(0.35),
+                blurRadius: 10,
               ),
             ],
           ),
@@ -62,40 +62,43 @@ class _HomePageState extends State<HomePage> {
 
       body: Column(
         children: [
-          // ----------------------------
-          // BARRA DE BUSCA
-          // ----------------------------
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
-            child: TextField(
-              onChanged: (value) {
-                setState(() => searchQuery = value);
-              },
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: "Buscar produto, loja ou categoria...",
-                hintStyle: const TextStyle(color: Colors.white54),
-                prefixIcon: const Icon(Icons.search, color: Colors.white70),
-                filled: true,
-                fillColor: const Color(0xFF1A1A1A),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF1A1A1A),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.purpleAccent.withOpacity(0.12),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+              child: TextField(
+                onChanged: (value) {
+                  setState(() => searchQuery = value);
+                },
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: "Buscar produto, loja ou categoria...",
+                  hintStyle: const TextStyle(color: Colors.white54),
+                  prefixIcon: const Icon(Icons.search, color: Colors.white70),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
               ),
             ),
           ),
 
-          // ----------------------------
-          // LISTA DE PROMOÇÕES
-          // ----------------------------
           Expanded(
             child: FutureBuilder<List<dynamic>>(
               future: promotions,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
-                    child: CircularProgressIndicator(color: Colors.redAccent),
+                    child: CircularProgressIndicator(color: Colors.purpleAccent),
                   );
                 }
 
@@ -120,6 +123,7 @@ class _HomePageState extends State<HomePage> {
                 final filteredItems = filterPromotions(snapshot.data!);
 
                 return ListView.builder(
+                  padding: const EdgeInsets.only(top: 6),
                   itemCount: filteredItems.length,
                   itemBuilder: (context, index) {
                     final promo = filteredItems[index];
@@ -133,9 +137,7 @@ class _HomePageState extends State<HomePage> {
                       category: promo["category"],
                       expiresAt: promo["expires_at"],
                       stock: promo["stock"],
-                      onTap: () {
-                        // futuramente abre detalhes
-                      },
+                      onTap: () {},
                     );
                   },
                 );
