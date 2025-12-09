@@ -31,44 +31,66 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0E0E0E),
+      backgroundColor: const Color(0xFF121212),
+
       appBar: AppBar(
+        backgroundColor: const Color(0xFF0E0E0E),
+        elevation: 0,
+        centerTitle: true,
         title: Text(
           widget.categoryName,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            shadows: [
+              Shadow(
+                color: Colors.purpleAccent.withOpacity(0.25),
+                blurRadius: 6,
+              ),
+            ],
+          ),
         ),
-        backgroundColor: Colors.black,
-        centerTitle: true,
       ),
+
       body: FutureBuilder<List<dynamic>>(
         future: promotions,
         builder: (context, snapshot) {
+          // Carregando
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
-              child: CircularProgressIndicator(color: Colors.redAccent),
+              child: CircularProgressIndicator(
+                color: Colors.purpleAccent,
+              ),
             );
           }
 
+          // Erro
           if (snapshot.hasError) {
             return Center(
               child: Text(
                 "Erro ao carregar promoções",
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white70),
               ),
             );
           }
 
           final filteredItems = filterByCategory(snapshot.data ?? []);
 
+          // Lista vazia
           if (filteredItems.isEmpty) {
             return Center(
               child: Text(
-                "Nenhuma oferta encontrada nessa categoria",
-                style: TextStyle(color: Colors.white70),
+                "Nenhuma oferta encontrada",
+                style: TextStyle(
+                  color: Colors.white54,
+                  fontSize: 16,
+                ),
               ),
             );
           }
 
+          // Lista final
           return ListView.builder(
             itemCount: filteredItems.length,
             itemBuilder: (context, index) {
