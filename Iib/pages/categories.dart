@@ -39,8 +39,16 @@ class CategoriesPage extends StatelessWidget {
             final category = categories[index];
             return InkWell(
               borderRadius: BorderRadius.circular(16),
+              import 'category_products_page.dart';
               onTap: () {
-                // futuramente filtrará promoções dessa categoria
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                     builder: (_) => CategoryProductsPage(
+                     categoryName: category["name"],
+                     ),
+                   ),
+                );
               },
               child: Container(
                 decoration: BoxDecoration(
