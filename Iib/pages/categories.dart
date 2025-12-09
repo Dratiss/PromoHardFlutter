@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'category_products_page.dart'; // IMPORT CORRETO AQUI
 
 class CategoriesPage extends StatelessWidget {
   final List<Map<String, dynamic>> categories = [
@@ -30,24 +31,24 @@ class CategoriesPage extends StatelessWidget {
         child: GridView.builder(
           itemCount: categories.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // 2 cards por linha
+            crossAxisCount: 2,
             crossAxisSpacing: 14,
             mainAxisSpacing: 14,
             childAspectRatio: 1.2,
           ),
           itemBuilder: (context, index) {
             final category = categories[index];
+
             return InkWell(
               borderRadius: BorderRadius.circular(16),
-              import 'category_products_page.dart';
               onTap: () {
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                     builder: (_) => CategoryProductsPage(
-                     categoryName: category["name"],
-                     ),
-                   ),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CategoryProductsPage(
+                      categoryName: category["name"],
+                    ),
+                  ),
                 );
               },
               child: Container(
