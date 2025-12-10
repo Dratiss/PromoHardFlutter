@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'category_products_page.dart'; // IMPORT CORRETO AQUI
+import 'category_products_page.dart';
 
 class CategoriesPage extends StatelessWidget {
   final List<Map<String, dynamic>> categories = [
@@ -17,15 +17,27 @@ class CategoriesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0E0E0E),
+
       appBar: AppBar(
-        title: const Text(
-          "Categorias",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.black,
-        centerTitle: true,
+        backgroundColor: Color(0xFF0E0E0E),
         elevation: 0,
+        centerTitle: true,
+        title: Text(
+          "Categorias",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            shadows: [
+              Shadow(
+                color: Colors.purpleAccent.withOpacity(0.20),
+                blurRadius: 6,
+              ),
+            ],
+          ),
+        ),
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
@@ -60,22 +72,18 @@ class CategoriesPage extends StatelessWidget {
                       color: category["color"].withOpacity(0.25),
                       blurRadius: 6,
                       spreadRadius: 1,
-                      offset: const Offset(0, 2),
+                      offset: Offset(0, 2),
                     ),
                   ],
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      category["icon"],
-                      color: category["color"],
-                      size: 38,
-                    ),
-                    const SizedBox(height: 12),
+                    Icon(category["icon"], color: category["color"], size: 38),
+                    SizedBox(height: 12),
                     Text(
                       category["name"],
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
