@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'settings_page.dart';
 import 'favorites_page.dart';
+import 'about_page.dart'; // <-- import NECESSÁRIO
 
 class ProfilePage extends StatelessWidget {
   @override
@@ -47,7 +48,6 @@ class ProfilePage extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  // FOTO DO USUÁRIO
                   CircleAvatar(
                     radius: 48,
                     backgroundColor: Colors.grey[700],
@@ -101,6 +101,7 @@ class ProfilePage extends StatelessWidget {
               context,
               icon: Icons.info_outline,
               label: "Sobre o App",
+              page: AboutPage(), // <-- agora FUNCIONA
             ),
             buildMenuItem(
               context,
