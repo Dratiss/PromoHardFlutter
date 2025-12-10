@@ -13,22 +13,22 @@ class _FavoritesPageState extends State<FavoritesPage> {
     final favorites = FavoritesService.favorites;
 
     return Scaffold(
-      backgroundColor: Color(0xFF0E0E0E),
+      backgroundColor: const Color(0xFF0E0E0E),
 
       appBar: AppBar(
-        backgroundColor: Color(0xFF0E0E0E),
-        elevation: 0,
+        backgroundColor: const Color(0xFF0A0A0A),
         centerTitle: true,
+        elevation: 0,
         title: Text(
           "Favoritos",
           style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
             fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: Colors.white,
             shadows: [
               Shadow(
-                color: Colors.purpleAccent.withOpacity(0.20),
-                blurRadius: 6,
+                color: Colors.purpleAccent.withOpacity(0.35),
+                blurRadius: 10,
               ),
             ],
           ),
@@ -39,26 +39,37 @@ class _FavoritesPageState extends State<FavoritesPage> {
           ? Center(
               child: Text(
                 "Nenhuma promoção favoritada",
-                style: TextStyle(color: Colors.white70, fontSize: 18),
+                style: TextStyle(
+                  color: Colors.white54,
+                  fontSize: 17,
+                ),
               ),
             )
           : ListView.builder(
+              padding: EdgeInsets.symmetric(vertical: 10),
               itemCount: favorites.length,
               itemBuilder: (context, index) {
                 final promo = favorites[index];
 
                 return Dismissible(
                   key: ValueKey(promo["title"]),
+                  direction: DismissDirection.endToStart,
                   background: Container(
-                    color: Colors.redAccent.withOpacity(0.4),
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.only(left: 20),
+                    margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: EdgeInsets.only(right: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    alignment: Alignment.centerRight,
                     child: Icon(Icons.delete, color: Colors.white),
                   ),
+
                   onDismissed: (_) {
                     FavoritesService.removeFavorite(promo);
                     setState(() {});
                   },
+
                   child: PromoCard(
                     title: promo["title"],
                     normalPrice: promo["normal_price"],
