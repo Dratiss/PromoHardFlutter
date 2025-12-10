@@ -14,12 +14,27 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
     return Scaffold(
       backgroundColor: Color(0xFF0E0E0E),
+
       appBar: AppBar(
-        title: Text("Favoritos"),
-        backgroundColor: Colors.black,
-        centerTitle: true,
+        backgroundColor: Color(0xFF0E0E0E),
         elevation: 0,
+        centerTitle: true,
+        title: Text(
+          "Favoritos",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            shadows: [
+              Shadow(
+                color: Colors.purpleAccent.withOpacity(0.20),
+                blurRadius: 6,
+              ),
+            ],
+          ),
+        ),
       ),
+
       body: favorites.isEmpty
           ? Center(
               child: Text(
@@ -48,13 +63,12 @@ class _FavoritesPageState extends State<FavoritesPage> {
                     title: promo["title"],
                     normalPrice: promo["normal_price"],
                     promoPrice: promo["promo_price"],
-                    imageUrl: promo["image"],
+                    imageUrl: promo["image"] ?? "",
                     store: promo["store"],
+                    category: promo["category"],
                     expiresAt: promo["expires_at"],
                     stock: promo["stock"],
-                    onTap: () {
-                      // abre detalhes futuramente
-                    },
+                    onTap: () {},
                   ),
                 );
               },
