@@ -25,20 +25,52 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: screens[currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: currentIndex,
-        onTap: (index) => setState(() => currentIndex = index),
-        selectedItemColor: Colors.redAccent,
-        unselectedItemColor: Colors.white70,
-        backgroundColor: Color(0xFF141414),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Início"),
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: "Categorias"),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: "Favoritos"),
-          BottomNavigationBarItem(icon: Icon(Icons.build), label: "Montar PC"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil"),
-        ],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Color(0xFF141414),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.purpleAccent.withOpacity(0.15),
+              blurRadius: 12,
+              offset: Offset(0, -4),
+            )
+          ],
+        ),
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          currentIndex: currentIndex,
+          onTap: (index) => setState(() => currentIndex = index),
+          backgroundColor: Colors.transparent,
+          selectedItemColor: Colors.purpleAccent,
+          unselectedItemColor: Colors.white54,
+          selectedLabelStyle: TextStyle(
+            fontWeight: FontWeight.bold,
+            shadows: [
+              Shadow(
+                color: Colors.purpleAccent.withOpacity(0.6),
+                blurRadius: 8,
+              )
+            ],
+          ),
+          selectedIconTheme: IconThemeData(
+            size: 28,
+            color: Colors.purpleAccent,
+            shadows: [
+              Shadow(
+                color: Colors.purpleAccent.withOpacity(0.7),
+                blurRadius: 12,
+              )
+            ],
+          ),
+          unselectedIconTheme: IconThemeData(size: 24),
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Início"),
+            BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: "Categorias"),
+            BottomNavigationBarItem(icon: Icon(Icons.favorite), label: "Favoritos"),
+            BottomNavigationBarItem(icon: Icon(Icons.build), label: "Montar PC"),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil"),
+          ],
+        ),
       ),
     );
   }
