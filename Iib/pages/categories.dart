@@ -3,35 +3,34 @@ import 'category_products_page.dart';
 
 class CategoriesPage extends StatelessWidget {
   final List<Map<String, dynamic>> categories = [
-    {"name": "Placas de Vídeo", "icon": Icons.memory, "color": Colors.greenAccent},
-    {"name": "Processadores", "icon": Icons.developer_board, "color": Colors.orangeAccent},
-    {"name": "Armazenamento", "icon": Icons.sd_storage, "color": Colors.blueAccent},
-    {"name": "Placas-mãe", "icon": Icons.devices, "color": Colors.purpleAccent},
-    {"name": "Gabinetes", "icon": Icons.view_in_ar, "color": Colors.redAccent},
-    {"name": "Periféricos", "icon": Icons.mouse, "color": Colors.cyanAccent},
-    {"name": "Memórias RAM", "icon": Icons.memory_outlined, "color": Colors.yellowAccent},
-    {"name": "Fontes", "icon": Icons.power, "color": Colors.lightGreenAccent},
+    {"name": "Placas de Vídeo", "icon": Icons.memory},
+    {"name": "Processadores", "icon": Icons.developer_board},
+    {"name": "Armazenamento", "icon": Icons.sd_storage},
+    {"name": "Placas-mãe", "icon": Icons.devices},
+    {"name": "Gabinetes", "icon": Icons.view_in_ar},
+    {"name": "Periféricos", "icon": Icons.mouse},
+    {"name": "Memórias RAM", "icon": Icons.memory_outlined},
+    {"name": "Fontes", "icon": Icons.power},
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0E0E0E),
-
       appBar: AppBar(
-        backgroundColor: Color(0xFF0E0E0E),
-        elevation: 0,
+        backgroundColor: Color(0xFF0A0A0A),
         centerTitle: true,
+        elevation: 0,
         title: Text(
           "Categorias",
           style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
             fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: Colors.white,
             shadows: [
               Shadow(
-                color: Colors.purpleAccent.withOpacity(0.20),
-                blurRadius: 6,
+                color: Colors.purpleAccent.withOpacity(0.35),
+                blurRadius: 10,
               ),
             ],
           ),
@@ -46,7 +45,7 @@ class CategoriesPage extends StatelessWidget {
             crossAxisCount: 2,
             crossAxisSpacing: 14,
             mainAxisSpacing: 14,
-            childAspectRatio: 1.2,
+            childAspectRatio: 1.05,
           ),
           itemBuilder: (context, index) {
             final category = categories[index];
@@ -57,38 +56,52 @@ class CategoriesPage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => CategoryProductsPage(
-                      categoryName: category["name"],
-                    ),
+                    builder: (_) =>
+                        CategoryProductsPage(categoryName: category["name"]),
                   ),
                 );
               },
+
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey[900],
                   borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF181818),
+                      Color(0xFF101010),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: category["color"].withOpacity(0.25),
-                      blurRadius: 6,
+                      color: Colors.purpleAccent.withOpacity(0.20),
+                      blurRadius: 12,
                       spreadRadius: 1,
                       offset: Offset(0, 2),
                     ),
                   ],
                 ),
+
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(category["icon"], color: category["color"], size: 38),
-                    SizedBox(height: 12),
+                    Icon(
+                      category["icon"],
+                      color: Colors.purpleAccent,
+                      size: 40,
+                    ),
+
+                    const SizedBox(height: 12),
+
                     Text(
                       category["name"],
-                      style: TextStyle(
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
