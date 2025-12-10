@@ -24,13 +24,10 @@ class PromoCard extends StatelessWidget {
 
   String getExpirationText() {
     if (expiresAt == null) return "Sem prazo definido";
-
     final parsed = DateTime.tryParse(expiresAt!);
     if (parsed == null) return "Sem prazo definido";
-
     final now = DateTime.now();
     final diff = parsed.difference(now).inHours;
-
     if (diff <= 0) return "EXPIRADO";
     if (diff < 24) return "Termina em $diff horas";
     return "Termina em ${parsed.day}/${parsed.month}";
@@ -45,19 +42,29 @@ class PromoCard extends StatelessWidget {
     return Opacity(
       opacity: isExpired ? 0.45 : 1.0,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
         padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Color(0xFF1A1A1A),
-          borderRadius: BorderRadius.circular(14),
+          color: Color(0xFF151515),
+          borderRadius: BorderRadius.circular(16),
+
+          // GLOW ROXO SUAVE
+          boxShadow: [
+            BoxShadow(
+              color: Colors.purpleAccent.withOpacity(0.15),
+              blurRadius: 12,
+              spreadRadius: 2,
+              offset: Offset(0, 4),
+            ),
+          ],
         ),
+
         child: InkWell(
+          borderRadius: BorderRadius.circular(16),
           onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // IMAGEM
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Image.network(
@@ -70,12 +77,10 @@ class PromoCard extends StatelessWidget {
 
               SizedBox(width: 12),
 
-              // INFORMAÇÕES
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // TÍTULO + BOTÃO FAVORITAR
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -92,7 +97,6 @@ class PromoCard extends StatelessWidget {
                           ),
                         ),
 
-                        // BOTÃO DE FAVORITAR
                         GestureDetector(
                           onTap: () {
                             if (isFavorite) {
@@ -140,7 +144,7 @@ class PromoCard extends StatelessWidget {
                       "Por: $promoPrice",
                       style: TextStyle(
                         color: Colors.greenAccent,
-                        fontSize: 17,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -157,7 +161,8 @@ class PromoCard extends StatelessWidget {
                     Text(
                       expiration,
                       style: TextStyle(
-                        color: isExpired ? Colors.redAccent : Colors.orangeAccent,
+                        color:
+                            isExpired ? Colors.redAccent : Colors.orangeAccent,
                         fontSize: 12,
                       ),
                     ),
@@ -172,7 +177,7 @@ class PromoCard extends StatelessWidget {
                       ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
