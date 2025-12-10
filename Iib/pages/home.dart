@@ -37,23 +37,22 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: Color(0xFF0E0E0E),
 
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0E0E0E),
+        backgroundColor: Color(0xFF0A0A0A),
         elevation: 0,
         centerTitle: true,
         title: Text(
           "PROMOHARD",
           style: TextStyle(
             color: Colors.white,
-            fontSize: 23,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
-            letterSpacing: 1,
             shadows: [
               Shadow(
                 color: Colors.purpleAccent.withOpacity(0.35),
-                blurRadius: 10,
+                blurRadius: 12,
               ),
             ],
           ),
@@ -62,16 +61,16 @@ class _HomePageState extends State<HomePage> {
 
       body: Column(
         children: [
+          // BARRA DE BUSCA
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
             child: Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF1A1A1A),
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.purpleAccent.withOpacity(0.12),
-                    blurRadius: 8,
+                    color: Colors.purpleAccent.withOpacity(0.18),
+                    blurRadius: 14,
                     spreadRadius: 1,
                   ),
                 ],
@@ -80,13 +79,17 @@ class _HomePageState extends State<HomePage> {
                 onChanged: (value) {
                   setState(() => searchQuery = value);
                 },
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: "Buscar produto, loja ou categoria...",
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  prefixIcon: const Icon(Icons.search, color: Colors.white70),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  hintStyle: TextStyle(color: Colors.white54),
+                  prefixIcon: Icon(Icons.search, color: Colors.white70),
+                  filled: true,
+                  fillColor: Color(0xFF1A1A1A),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
             ),
@@ -97,13 +100,15 @@ class _HomePageState extends State<HomePage> {
               future: promotions,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Colors.purpleAccent),
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.purpleAccent,
+                    ),
                   );
                 }
 
                 if (snapshot.hasError) {
-                  return const Center(
+                  return Center(
                     child: Text(
                       "Erro ao carregar promoções",
                       style: TextStyle(color: Colors.white),
@@ -111,19 +116,19 @@ class _HomePageState extends State<HomePage> {
                   );
                 }
 
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(
+                final data = snapshot.data ?? [];
+                final filteredItems = filterPromotions(data);
+
+                if (filteredItems.isEmpty) {
+                  return Center(
                     child: Text(
                       "Nenhuma promoção encontrada",
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.white70),
                     ),
                   );
                 }
 
-                final filteredItems = filterPromotions(snapshot.data!);
-
                 return ListView.builder(
-                  padding: const EdgeInsets.only(top: 6),
                   itemCount: filteredItems.length,
                   itemBuilder: (context, index) {
                     final promo = filteredItems[index];
