@@ -31,21 +31,21 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: Color(0xFF0E0E0E),
 
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0E0E0E),
+        backgroundColor: Color(0xFF0E0E0E),
         elevation: 0,
         centerTitle: true,
         title: Text(
           widget.categoryName,
           style: TextStyle(
             color: Colors.white,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
-            fontSize: 20,
             shadows: [
               Shadow(
-                color: Colors.purpleAccent.withOpacity(0.25),
+                color: Colors.purpleAccent.withOpacity(0.20),
                 blurRadius: 6,
               ),
             ],
@@ -56,45 +56,37 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
       body: FutureBuilder<List<dynamic>>(
         future: promotions,
         builder: (context, snapshot) {
-          // Carregando
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
-              child: CircularProgressIndicator(
-                color: Colors.purpleAccent,
-              ),
+              child: CircularProgressIndicator(color: Colors.redAccent),
             );
           }
 
-          // Erro
           if (snapshot.hasError) {
             return Center(
               child: Text(
                 "Erro ao carregar promoções",
-                style: TextStyle(color: Colors.white70),
+                style: TextStyle(color: Colors.white),
               ),
             );
           }
 
           final filteredItems = filterByCategory(snapshot.data ?? []);
 
-          // Lista vazia
           if (filteredItems.isEmpty) {
             return Center(
               child: Text(
-                "Nenhuma oferta encontrada",
-                style: TextStyle(
-                  color: Colors.white54,
-                  fontSize: 16,
-                ),
+                "Nenhuma oferta encontrada nessa categoria",
+                style: TextStyle(color: Colors.white70),
               ),
             );
           }
 
-          // Lista final
           return ListView.builder(
             itemCount: filteredItems.length,
             itemBuilder: (context, index) {
               final promo = filteredItems[index];
+
               return PromoCard(
                 title: promo["title"],
                 normalPrice: promo["normal_price"],
