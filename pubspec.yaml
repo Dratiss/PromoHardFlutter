@@ -19,13 +19,24 @@ dev_dependencies:
 
   flutter_lints: ^3.0.0
   flutter_native_splash: ^2.4.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/
+    - assets/icon/
 
 flutter_native_splash:
   color: "#0E0E0E"
   android: true
   ios: false
   fullscreen: true
-  remove_after: true
+
+flutter_icons:
+  android: true
+  ios: false
+  image_path: assets/icon/icon.png
+  adaptive_icon_background: "#0E0E0E"
+  adaptive_icon_foreground: assets/icon/icon_foreground.png
