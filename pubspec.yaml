@@ -1,19 +1,31 @@
 name: promohard
-description: PromoHard - promoções gamer em tempo real
+description: App de promoções de tecnologia
 publish_to: 'none'
-version: 0.0.1+1
+
+version: 1.0.0+1
 
 environment:
-  sdk: ">=2.18.0 <3.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.2
+
+  http: ^1.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  flutter_lints: ^3.0.0
+
+  flutter_native_splash: ^2.4.0
+
 flutter:
   uses-material-design: true
+
+flutter_native_splash:
+  color: "#0E0E0E"
+  android: true
+  ios: false
+  fullscreen: true
