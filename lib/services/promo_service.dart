@@ -9,7 +9,7 @@ class PromoService {
     final response = await http.get(Uri.parse(apiUrl));
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      final data = json.decode(_sanitize(response.body));
 
       List promotions = data["promotions"] ?? [];
 
@@ -42,5 +42,17 @@ class PromoService {
     } else {
       throw Exception("Erro ao carregar promoções");
     }
+  }
+
+  // Compatibilidade: a Promotions.json atual vem embrulhada em código Dart
+  // (const String fakeJson = """ ... """;) e com preços escapados como "R\$".
+  // Isso não é JSON válido. Aqui extraímos o objeto entre o primeiro "{" e o
+  // último "}" e desfazemos o "\$". Quando a API virar JSON puro, este passo
+  // vira um no-op (nada a extrair, nada a substituir).
+  String _sanitize(String body) {
+    final start = body.indexOf('{');
+    final end = body.lastIndexOf('}');
+    var json = (start >= 0 && end > start) ? body.substring(start, end + 1) : body;
+    return json.replaceAll(r'\$', r'$');
   }
 }
