@@ -1,46 +1,72 @@
-name: promohard
-description: App de promoções de tecnologia
-publish_to: 'none'
+import 'package:flutter/material.dart';
+import 'dart:async';
+import '../main_navigation.dart';
+import '../main.dart'; // Importando AppColors
 
-version: 1.0.0+1
+class SplashPage extends StatefulWidget {
+  const SplashPage({super.key});
 
-environment:
-  sdk: ">=3.0.0 <4.0.0"
+  @override
+  State<SplashPage> createState() => _SplashPageState();
+}
 
-dependencies:
-  flutter:
-    sdk: flutter
+class _SplashPageState extends State<SplashPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  Timer? _redirectTimer;
 
-  http: ^1.2.0
-  share_plus: ^10.1.2
-  url_launcher: ^6.3.1
+  @override
+  void initState() {
+    super.initState();
+    // Fade-in com 2 segundos de duração
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
 
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
+    _controller.forward();
 
-  flutter_lints: ^3.0.0
-  flutter_native_splash: ^2.4.0
-  flutter_launcher_icons: ^0.13.1
+    // Redireciona após 3 segundos
+    _redirectTimer = Timer(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const MainNavigation()),
+      );
+    });
+  }
 
-flutter:
-  uses-material-design: true
+  @override
+  void dispose() {
+    _redirectTimer?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
 
-  assets:
-    - assets/
-    - assets/icon/
-
-flutter_native_splash:
-  color: "#0E0E0E"
-  android: true
-  ios: false
-  fullscreen: true
-
-# OBS: a partir da versão 0.10+ do flutter_launcher_icons, a chave de
-# configuração correta é "flutter_launcher_icons" (não "flutter_icons").
-flutter_launcher_icons:
-  android: true
-  ios: false
-  image_path: assets/icon/icon.png
-  adaptive_icon_background: "#0E0E0E"
-  adaptive_icon_foreground: assets/icon/icon_foreground.png
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: Center(
+        child: FadeTransition(
+          opacity: _animation,
+          child: Text(
+            "PROMOHARD",
+            style: TextStyle(
+              fontSize: 38,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              shadows: [
+                Shadow(
+                  color: AppColors.goldAccent.withOpacity(0.8), // Glow Dourado
+                  blurRadius: 18,
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
