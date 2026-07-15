@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import 'category_products_page.dart';
 
 class CategoriesPage extends StatelessWidget {
@@ -31,7 +32,7 @@ class CategoriesPage extends StatelessWidget {
             color: Colors.white,
             shadows: [
               Shadow(
-                color: Colors.purpleAccent.withOpacity(0.35),
+                color: AppColors.goldAccent.withOpacity(0.35),
                 blurRadius: 10,
               ),
             ],
@@ -77,7 +78,7 @@ class CategoriesPage extends StatelessWidget {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.purpleAccent.withOpacity(0.20),
+                      color: AppColors.goldAccent.withOpacity(0.20),
                       blurRadius: 12,
                       spreadRadius: 1,
                       offset: const Offset(0, 2),
@@ -90,7 +91,7 @@ class CategoriesPage extends StatelessWidget {
                   children: [
                     Icon(
                       category["icon"],
-                      color: Colors.purpleAccent,
+                      color: AppColors.goldAccent,
                       size: 40,
                     ),
 

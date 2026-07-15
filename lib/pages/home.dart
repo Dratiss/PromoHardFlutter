@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import '../services/promo_service.dart';
 import '../widgets/promocard.dart';
 import '../widgets/loading.dart';
@@ -55,7 +56,7 @@ class _HomePageState extends State<HomePage> {
             fontWeight: FontWeight.bold,
             shadows: [
               Shadow(
-                color: Colors.purpleAccent.withOpacity(0.35),
+                color: AppColors.goldAccent.withOpacity(0.35),
                 blurRadius: 12,
               ),
             ],
@@ -73,7 +74,7 @@ class _HomePageState extends State<HomePage> {
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.purpleAccent.withOpacity(0.18),
+                    color: AppColors.goldAccent.withOpacity(0.18),
                     blurRadius: 14,
                     spreadRadius: 1,
                   ),

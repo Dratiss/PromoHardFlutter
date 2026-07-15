@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -20,7 +21,7 @@ class SettingsPage extends StatelessWidget {
             fontWeight: FontWeight.bold,
             shadows: [
               Shadow(
-                color: Colors.purpleAccent.withOpacity(0.20),
+                color: AppColors.goldAccent.withOpacity(0.20),
                 blurRadius: 6,
               ),
             ],

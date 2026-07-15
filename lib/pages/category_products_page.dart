@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import '../widgets/promocard.dart';
 import '../widgets/loading.dart';
 import '../services/promo_service.dart';
@@ -47,7 +48,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
             fontWeight: FontWeight.bold,
             shadows: [
               Shadow(
-                color: Colors.purpleAccent.withOpacity(0.20),
+                color: AppColors.goldAccent.withOpacity(0.20),
                 blurRadius: 6,
               ),
             ],

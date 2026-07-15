@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import 'settings_page.dart';
 import 'favorites_page.dart';
 import 'about_page.dart'; // <-- import NECESSÁRIO
@@ -23,7 +24,7 @@ class ProfilePage extends StatelessWidget {
             color: Colors.white,
             shadows: [
               Shadow(
-                color: Colors.purpleAccent.withOpacity(0.35),
+                color: AppColors.goldAccent.withOpacity(0.35),
                 blurRadius: 10,
               )
             ],
@@ -42,7 +43,7 @@ class ProfilePage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.purpleAccent.withOpacity(0.25),
+                    color: AppColors.goldAccent.withOpacity(0.25),
                     blurRadius: 10,
                     spreadRadius: 1,
                   )
@@ -144,7 +145,7 @@ class ProfilePage extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.purpleAccent.withOpacity(0.15),
+            color: AppColors.goldAccent.withOpacity(0.15),
             blurRadius: 8,
             spreadRadius: 1,
           ),

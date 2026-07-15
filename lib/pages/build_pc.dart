@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 
 class BuildPCPage extends StatelessWidget {
   const BuildPCPage({super.key});
@@ -19,7 +20,7 @@ class BuildPCPage extends StatelessWidget {
             color: Colors.white,
             shadows: [
               Shadow(
-                color: Colors.purpleAccent.withOpacity(0.35),
+                color: AppColors.goldAccent.withOpacity(0.35),
                 blurRadius: 10,
               ),
             ],
@@ -34,7 +35,7 @@ class BuildPCPage extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.purpleAccent.withOpacity(0.25),
+                color: AppColors.goldAccent.withOpacity(0.25),
                 blurRadius: 20,
                 spreadRadius: 2,
               )
@@ -43,7 +44,7 @@ class BuildPCPage extends StatelessWidget {
           child: const Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.build, size: 60, color: Colors.purpleAccent),
+              Icon(Icons.build, size: 60, color: AppColors.goldAccent),
               SizedBox(height: 16),
               Text(
                 "Sistema em desenvolvimento",

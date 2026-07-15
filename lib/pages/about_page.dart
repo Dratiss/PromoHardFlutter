@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -19,7 +20,7 @@ class AboutPage extends StatelessWidget {
             color: Colors.white,
             shadows: [
               Shadow(
-                color: Colors.purpleAccent.withOpacity(0.35),
+                color: AppColors.goldAccent.withOpacity(0.35),
                 blurRadius: 10,
               ),
             ],
@@ -35,7 +36,7 @@ class AboutPage extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.purpleAccent.withOpacity(0.25),
+                color: AppColors.goldAccent.withOpacity(0.25),
                 blurRadius: 20,
                 spreadRadius: 2,
               )
@@ -47,7 +48,7 @@ class AboutPage extends StatelessWidget {
               Text(
                 "PromoHard",
                 style: TextStyle(
-                  color: Colors.purpleAccent,
+                  color: AppColors.goldAccent,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),

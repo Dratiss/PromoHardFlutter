@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import '../widgets/promocard.dart';
 import '../services/favorites_service.dart';
 import 'promo_details_page.dart';
@@ -30,7 +31,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
             color: Colors.white,
             shadows: [
               Shadow(
-                color: Colors.purpleAccent.withOpacity(0.35),
+                color: AppColors.goldAccent.withOpacity(0.35),
                 blurRadius: 10,
               ),
             ],
