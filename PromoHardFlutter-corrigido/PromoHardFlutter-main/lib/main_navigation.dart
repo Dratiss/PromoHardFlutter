@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'main.dart';
 import 'pages/home.dart';
 import 'pages/categories.dart';
 import 'pages/favorites_page.dart';
@@ -27,12 +28,12 @@ class _MainNavigationState extends State<MainNavigation> {
       body: screens[currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Color(0xFF141414),
+          color: AppColors.navBar,
           boxShadow: [
             BoxShadow(
-              color: Colors.purpleAccent.withOpacity(0.15),
+              color: AppColors.goldAccent.withOpacity(0.15),
               blurRadius: 12,
-              offset: Offset(0, -4),
+              offset: const Offset(0, -4),
             )
           ],
         ),
@@ -41,28 +42,18 @@ class _MainNavigationState extends State<MainNavigation> {
           currentIndex: currentIndex,
           onTap: (index) => setState(() => currentIndex = index),
           backgroundColor: Colors.transparent,
-          selectedItemColor: Colors.purpleAccent,
+          selectedItemColor: AppColors.goldAccent,
           unselectedItemColor: Colors.white54,
-          selectedLabelStyle: TextStyle(
-            fontWeight: FontWeight.bold,
-            shadows: [
-              Shadow(
-                color: Colors.purpleAccent.withOpacity(0.6),
-                blurRadius: 8,
-              )
-            ],
-          ),
+          elevation: 0,
           selectedIconTheme: IconThemeData(
             size: 28,
-            color: Colors.purpleAccent,
             shadows: [
               Shadow(
-                color: Colors.purpleAccent.withOpacity(0.7),
+                color: AppColors.goldAccent.withOpacity(0.7), // Efeito Glow na aba ativa
                 blurRadius: 12,
               )
             ],
           ),
-          unselectedIconTheme: IconThemeData(size: 24),
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: "Início"),
             BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: "Categorias"),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/favorites_service.dart';
+import '../main.dart'; // Importando AppColors
 
 class PromoCard extends StatelessWidget {
   final String imageUrl;
@@ -42,23 +43,20 @@ class PromoCard extends StatelessWidget {
     return Opacity(
       opacity: isExpired ? 0.45 : 1.0,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-        padding: EdgeInsets.all(12),
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Color(0xFF151515),
+          color: AppColors.card, // Fundo #151515
           borderRadius: BorderRadius.circular(16),
-
-          // GLOW ROXO SUAVE
           boxShadow: [
             BoxShadow(
-              color: Colors.purpleAccent.withOpacity(0.15),
-              blurRadius: 12,
-              spreadRadius: 2,
-              offset: Offset(0, 4),
+              color: AppColors.goldAccent.withOpacity(0.12), // Glow Dourado sutil
+              blurRadius: 10,
+              spreadRadius: 1,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
@@ -69,14 +67,12 @@ class PromoCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 child: Image.network(
                   imageUrl,
-                  width: 70,
-                  height: 70,
+                  width: 80,
+                  height: 80,
                   fit: BoxFit.cover,
                 ),
               ),
-
-              SizedBox(width: 12),
-
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,92 +85,72 @@ class PromoCard extends StatelessWidget {
                             title,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
-
                         GestureDetector(
                           onTap: () {
                             if (isFavorite) {
-                              FavoritesService.removeFavorite({
-                                "title": title,
-                                "normal_price": normalPrice,
-                                "promo_price": promoPrice,
-                                "store": store,
-                                "image": imageUrl,
-                                "expires_at": expiresAt,
-                                "stock": stock,
-                              });
+                              FavoritesService.removeFavorite({"title": title});
                             } else {
-                              FavoritesService.addFavorite({
-                                "title": title,
-                                "normal_price": normalPrice,
-                                "promo_price": promoPrice,
-                                "store": store,
-                                "image": imageUrl,
-                                "expires_at": expiresAt,
-                                "stock": stock,
-                              });
+                              FavoritesService.addFavorite({"title": title});
                             }
                           },
                           child: Icon(
                             isFavorite ? Icons.favorite : Icons.favorite_border,
-                            color: isFavorite ? Colors.redAccent : Colors.white54,
+                            color: isFavorite ? AppColors.redAccent : Colors.white54,
                           ),
                         ),
                       ],
                     ),
-
-                    SizedBox(height: 6),
-
+                    const SizedBox(height: 6),
                     Text(
                       normalPrice,
-                      style: TextStyle(
-                        color: Colors.redAccent,
+                      style: const TextStyle(
+                        color: AppColors.redAccent,
                         fontSize: 12,
-                        decoration: TextDecoration.lineThrough,
+                        decoration: TextDecoration.lineThrough, // Preço riscado
                       ),
                     ),
-
                     Text(
                       "Por: $promoPrice",
-                      style: TextStyle(
-                        color: Colors.greenAccent,
+                      style: const TextStyle(
+                        color: AppColors.promoGreen,
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.bold, // Preço promo maior e verde
                       ),
                     ),
-
-                    SizedBox(height: 6),
-
+                    const SizedBox(height: 4),
                     Text(
                       store,
-                      style: TextStyle(color: Colors.blueAccent, fontSize: 13),
+                      style: const TextStyle(color: AppColors.blueAccent, fontSize: 13), // Nome da loja em azul
                     ),
-
-                    SizedBox(height: 4),
-
-                    Text(
-                      expiration,
-                      style: TextStyle(
-                        color:
-                            isExpired ? Colors.redAccent : Colors.orangeAccent,
-                        fontSize: 12,
-                      ),
-                    ),
-
-                    if (stock != null && stock! <= 10 && !isExpired)
-                      Text(
-                        "🔥 Últimas $stock unidades!",
-                        style: TextStyle(
-                          color: Colors.redAccent,
-                          fontSize: 12,
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          expiration,
+                          style: TextStyle(
+                            color: isExpired ? AppColors.redAccent : Colors.white70,
+                            fontSize: 12,
+                          ),
                         ),
-                      ),
+                        if (stock != null && stock! <= 10 && !isExpired)
+                          Text(
+                            "🔥 Últimas $stock und!",
+                            style: const TextStyle(
+                              color: AppColors.redAccent,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                      ],
+                    )
                   ],
                 ),
               ),
