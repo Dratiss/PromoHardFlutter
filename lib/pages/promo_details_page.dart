@@ -49,13 +49,8 @@ class PromoDetailsPage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.share, color: Colors.white),
             onPressed: () {
-              // API atual do share_plus (>= 10.x): Share.share() foi
-              // depreciado em favor de SharePlus.instance.share(ShareParams).
-              SharePlus.instance.share(
-                ShareParams(
-                  text:
-                      "${promo['title']} está por ${promo['promo_price']}!\nLoja: ${promo['store']}\n${promo['link']}",
-                ),
+              Share.share(
+                "${promo['title']} está por ${promo['promo_price']}!\nLoja: ${promo['store']}\n${promo['link']}",
               );
             },
           )
