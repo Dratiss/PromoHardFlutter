@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../main.dart';
 import '../widgets/promocard.dart';
 import '../widgets/loading.dart';
+import '../widgets/error_retry.dart';
 import '../services/promo_service.dart';
 import 'promo_details_page.dart';
 
@@ -22,6 +23,12 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
   void initState() {
     super.initState();
     promotions = promoService.fetchPromotions();
+  }
+
+  Future<void> _refresh() async {
+    final novas = promoService.fetchPromotions();
+    setState(() => promotions = novas);
+    await novas;
   }
 
   List<dynamic> filterByCategory(List<dynamic> items) {
@@ -64,50 +71,59 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
           }
 
           if (snapshot.hasError) {
-            return const Center(
-              child: Text(
-                "Erro ao carregar promoções",
-                style: TextStyle(color: Colors.white),
-              ),
-            );
+            return ErrorRetry(onRetry: _refresh);
           }
 
           final filteredItems = filterByCategory(snapshot.data ?? []);
 
           if (filteredItems.isEmpty) {
-            return const Center(
-              child: Text(
-                "Nenhuma oferta encontrada nessa categoria",
-                style: TextStyle(color: Colors.white70),
+            return RefreshIndicator(
+              color: AppColors.goldAccent,
+              onRefresh: _refresh,
+              child: ListView(
+                children: const [
+                  SizedBox(height: 200),
+                  Center(
+                    child: Text(
+                      "Nenhuma oferta encontrada nessa categoria",
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ),
+                ],
               ),
             );
           }
 
-          return ListView.builder(
-            itemCount: filteredItems.length,
-            itemBuilder: (context, index) {
-              final promo = filteredItems[index];
+          return RefreshIndicator(
+            color: AppColors.goldAccent,
+            onRefresh: _refresh,
+            child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: filteredItems.length,
+              itemBuilder: (context, index) {
+                final promo = filteredItems[index];
 
-              return PromoCard(
-                title: promo["title"],
-                normalPrice: promo["normal_price"],
-                promoPrice: promo["promo_price"],
-                imageUrl: promo["image"] ?? "",
-                store: promo["store"],
-                expiresAt: promo["expires_at"],
-                stock: promo["stock"],
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PromoDetailsPage(
-                        promo: Map<String, dynamic>.from(promo),
+                return PromoCard(
+                  title: promo["title"],
+                  normalPrice: promo["normal_price"],
+                  promoPrice: promo["promo_price"],
+                  imageUrl: promo["image"] ?? "",
+                  store: promo["store"],
+                  expiresAt: promo["expires_at"],
+                  stock: promo["stock"],
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PromoDetailsPage(
+                          promo: Map<String, dynamic>.from(promo),
+                        ),
                       ),
-                    ),
-                  );
-                },
-              );
-            },
+                    );
+                  },
+                );
+              },
+            ),
           );
         },
       ),

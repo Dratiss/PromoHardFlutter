@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../main.dart';
 import 'settings_page.dart';
 import 'favorites_page.dart';
 import 'about_page.dart'; // <-- import NECESSÁRIO
+import 'privacy_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -110,11 +112,13 @@ class ProfilePage extends StatelessWidget {
               context,
               icon: Icons.privacy_tip_outlined,
               label: "Política de Privacidade",
+              page: const PrivacyPage(),
             ),
             buildMenuItem(
               context,
               icon: Icons.email_outlined,
               label: "Contato / Suporte",
+              onTap: () => _abrirEmailSuporte(context),
             ),
           ],
         ),
@@ -137,7 +141,10 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget buildMenuItem(BuildContext context,
-      {required IconData icon, required String label, Widget? page}) {
+      {required IconData icon,
+      required String label,
+      Widget? page,
+      VoidCallback? onTap}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
@@ -159,7 +166,9 @@ class ProfilePage extends StatelessWidget {
         ),
         trailing: const Icon(Icons.chevron_right, color: Colors.white54),
         onTap: () {
-          if (page != null) {
+          if (onTap != null) {
+            onTap();
+          } else if (page != null) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => page),
@@ -168,5 +177,23 @@ class ProfilePage extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Future<void> _abrirEmailSuporte(BuildContext context) async {
+    final uri = Uri(
+      scheme: "mailto",
+      path: "suporte@promohard.com.br",
+      query: "subject=Suporte PromoHard",
+    );
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Nenhum app de e-mail encontrado. "
+              "Escreva para suporte@promohard.com.br"),
+        ),
+      );
+    }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pages/splash_page.dart';
+import 'services/favorites_service.dart';
 
 // Centralizando a Paleta de Cores Premium Black & Gold
 class AppColors {
@@ -10,7 +11,9 @@ class AppColors {
   static const Color promoGreen = Color(0xFF2ECC71); // Verde para preços promocionais
 }
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await FavoritesService.load(); // Carrega os favoritos salvos no aparelho
   runApp(const MyApp());
 }
 

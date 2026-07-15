@@ -1,11 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../services/favorites_service.dart';
 
-class PromoDetailsPage extends StatelessWidget {
+class PromoDetailsPage extends StatefulWidget {
   final Map<String, dynamic> promo;
 
   const PromoDetailsPage({super.key, required this.promo});
+
+  @override
+  State<PromoDetailsPage> createState() => _PromoDetailsPageState();
+}
+
+class _PromoDetailsPageState extends State<PromoDetailsPage> {
+  Map<String, dynamic> get promo => widget.promo;
+
+  void toggleFavorite() {
+    setState(() {
+      if (FavoritesService.isFavorite(promo["title"])) {
+        FavoritesService.removeFavorite(promo);
+      } else {
+        FavoritesService.addFavorite(promo);
+      }
+    });
+  }
 
   bool isExpired() {
     if (promo["expires_at"] == null) return false;
@@ -229,14 +247,25 @@ class PromoDetailsPage extends StatelessWidget {
 
                 const SizedBox(width: 16),
 
-                // ICONE FAVORITO (futuro)
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[850],
-                    borderRadius: BorderRadius.circular(12),
+                // ICONE FAVORITO (funcional)
+                GestureDetector(
+                  onTap: toggleFavorite,
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[850],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      FavoritesService.isFavorite(promo["title"])
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: FavoritesService.isFavorite(promo["title"])
+                          ? Colors.redAccent
+                          : Colors.white,
+                      size: 28,
+                    ),
                   ),
-                  child: const Icon(Icons.favorite_border, color: Colors.white, size: 28),
                 )
               ],
             ),
