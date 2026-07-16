@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Necessario para o app buscar as promocoes na internet (inclusive no release). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="promohard"
         android:name="${applicationName}"
