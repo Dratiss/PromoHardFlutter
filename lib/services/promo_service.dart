@@ -2,8 +2,15 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class PromoService {
-  final String apiUrl =
-      "https://raw.githubusercontent.com/Dratiss/PromoHardApi/main/Promotions.json";
+  // Definido em tempo de build com --dart-define=API_BASE_URL=<url>.
+  // O default mantém o app funcionando sem backend (JSON estático do GitHub),
+  // então builds antigos e novos continuam válidos.
+  //   flutter run --dart-define=API_BASE_URL=https://xxx.trycloudflare.com/promotions
+  static const String apiUrl = String.fromEnvironment(
+    "API_BASE_URL",
+    defaultValue:
+        "https://raw.githubusercontent.com/Dratiss/PromoHardApi/main/Promotions.json",
+  );
 
   Future<List<dynamic>> fetchPromotions() async {
     final response = await http.get(Uri.parse(apiUrl));
